@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="PokeDocs lens logo">
+  <defs>
+    <radialGradient id="lens" cx="50%" cy="50%" r="65%" fx="34%" fy="30%">
+      <stop offset="0%" stop-color="#BDE8FF"/>
+      <stop offset="42%" stop-color="#2EA8E0"/>
+      <stop offset="100%" stop-color="#0E5E8C"/>
+    </radialGradient>
+  </defs>
+  <circle cx="64" cy="64" r="62" fill="#FFF6EE"/>
+  <circle cx="64" cy="64" r="48" fill="url(#lens)"/>
+  <circle cx="43.8" cy="40.9" r="11.5" fill="#FFFFFF" opacity="0.85"/>
+</svg>

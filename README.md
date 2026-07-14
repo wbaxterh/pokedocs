@@ -1,4 +1,8 @@
-# PokeDocs
+<p align="center">
+  <img src="brand/logo.svg" width="112" alt="PokeDocs lens logo">
+</p>
+
+<h1 align="center">PokeDocs</h1>
 
 **Docs that humans love and agents can actually read — built in minutes, hosted anywhere.**
 
@@ -22,6 +26,7 @@ Documentation now has two audiences: humans and AI agents. Hosted platforms made
 ## Repo layout
 
 ```
+brand/               logo SVGs (lens mark + badge)
 docs/prd/            PRD source (markdown) + PDF pipeline
   pokedocs-prd-v1.md The spec
   scripts/           markdown → styled PDF (puppeteer + mermaid)
