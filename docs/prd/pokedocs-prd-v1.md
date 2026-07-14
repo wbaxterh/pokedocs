@@ -271,7 +271,7 @@ The anti-"installed but never wired" feature: activation is the preset's job, ne
 The flagship. Diagrams become dual human+agent artifacts, and diagram errors become build errors.
 
 - **S1.3.1 — SVG baked into static HTML**
-  *As P5 (and any no-JS reader), I want every ```mermaid fence compiled to inline SVG at build time, so that diagrams exist in the HTML without JavaScript.*
+  *As P5 (and any no-JS reader), I want every mermaid code fence compiled to inline SVG at build time, so that diagrams exist in the HTML without JavaScript.*
   Acceptance: built HTML contains the SVG; no client-side mermaid required for initial render; no flash-of-no-diagram; default light/dark mermaid themes follow the site color mode (brand-derived diagram palettes arrive in S5.1.2).
 - **S1.3.2 — Mermaid source preserved for agents**
   *As P4, I want the original mermaid source retained in the DOM alongside the SVG and verbatim in all markdown/llms outputs, so that I can read the diagram's semantics, not pixels.*
