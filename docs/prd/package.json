@@ -1,0 +1,13 @@
+{
+  "name": "pokedocs-prd",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PokeDocs PRD and spec documents — markdown source rendered to styled PDF",
+  "scripts": {
+    "generate": "node scripts/generate-pdf.js"
+  },
+  "dependencies": {
+    "marked": "^12.0.0",
+    "puppeteer": "^24.0.0"
+  }
+}
