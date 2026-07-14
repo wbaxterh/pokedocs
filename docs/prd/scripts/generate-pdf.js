@@ -316,6 +316,11 @@ async function printPage(browser, html, pdfOptions) {
   const { html, tocItems } = transform(md);
 
   fs.mkdirSync(path.dirname(output), { recursive: true });
+  if (process.env.POKEDOCS_DUMP_HTML) {
+    fs.writeFileSync(path.join(path.dirname(output), '_cover.html'), coverHtml());
+    fs.writeFileSync(path.join(path.dirname(output), '_content.html'), contentHtml(html, tocItems));
+    console.log('Dumped debug HTML to output/_cover.html and output/_content.html');
+  }
   const browser = await puppeteer.launch({ headless: 'new' });
   try {
     const coverPdf = await printPage(browser, coverHtml(), {
