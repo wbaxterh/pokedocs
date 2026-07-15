@@ -1,0 +1,28 @@
+{
+  "name": "@pokedocs/plugin-mermaid-ssr",
+  "version": "0.0.0",
+  "description": "Build-time mermaid rendering for Docusaurus — SVG baked into static HTML, source preserved for agents, build fails on bad syntax",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wbaxterh/pokedocs.git",
+    "directory": "packages/plugin-mermaid-ssr"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

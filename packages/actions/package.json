@@ -1,0 +1,29 @@
+{
+  "name": "@pokedocs/actions",
+  "version": "0.0.0",
+  "description": "GitHub Actions workflow templates for PokeDocs sites — docs-drift checking, AI doc updates, and deploy pipelines",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wbaxterh/pokedocs.git",
+    "directory": "packages/actions"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
