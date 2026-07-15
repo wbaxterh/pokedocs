@@ -1,0 +1,31 @@
+{
+  "name": "create-pokedocs",
+  "version": "0.0.0",
+  "description": "Scaffold an agent-readable, diagram-native, branded docs site in one command",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wbaxterh/pokedocs.git",
+    "directory": "packages/create-pokedocs"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "create-pokedocs": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

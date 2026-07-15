@@ -25,12 +25,20 @@ Documentation now has two audiences: humans and AI agents. Hosted platforms made
 
 ## Repo layout
 
+pnpm-workspace monorepo. `pnpm install && pnpm build` builds every package (TypeScript project references, topological order).
+
 ```
-brand/               logo SVGs (lens mark + badge)
-docs/prd/            PRD source (markdown) + PDF pipeline
-  pokedocs-prd-v1.md The spec
-  scripts/           markdown → styled PDF (puppeteer + mermaid)
-  output/            generated PDFs
+brand/                              logo SVGs (lens mark + badge)
+docs/prd/                           PRD source (markdown) + PDF pipeline
+packages/
+  create-pokedocs/                  scaffolder — docs-only site in one command
+  pokedocs/                         CLI — check, export, deploy init, mcp
+  preset/                           @pokedocs/preset — everything wired by default
+  theme/                            @pokedocs/theme — branding compiler, reader components
+  plugin-mermaid-ssr/               build-time mermaid → inline SVG, source preserved
+  plugin-agent-endpoints/           llms.txt, .md twins, discovery links — all static
+  plugin-frontmatter-schema/        declarative frontmatter validation
+  actions/                          GitHub Actions workflow templates
 ```
 
 ## License

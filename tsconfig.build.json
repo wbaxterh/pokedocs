@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/create-pokedocs" },
+    { "path": "packages/pokedocs" },
+    { "path": "packages/preset" },
+    { "path": "packages/theme" },
+    { "path": "packages/plugin-mermaid-ssr" },
+    { "path": "packages/plugin-agent-endpoints" },
+    { "path": "packages/plugin-frontmatter-schema" },
+    { "path": "packages/actions" }
+  ]
+}

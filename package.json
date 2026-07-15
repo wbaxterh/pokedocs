@@ -1,0 +1,23 @@
+{
+  "name": "pokedocs-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "PokeDocs — agent-native documentation framework built on Docusaurus",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wbaxterh/pokedocs.git"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "tsc -b tsconfig.build.json --clean"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.8.0"
+}
