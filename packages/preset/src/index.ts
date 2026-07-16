@@ -6,10 +6,10 @@
  * capability and enabling it are never separate steps.
  */
 
-import type { BrandingOptions } from '@pokedocs/theme';
-import type { MermaidSsrOptions } from '@pokedocs/plugin-mermaid-ssr';
 import type { AgentEndpointsOptions } from '@pokedocs/plugin-agent-endpoints';
 import type { FrontmatterSchemaOptions } from '@pokedocs/plugin-frontmatter-schema';
+import type { MermaidSsrOptions } from '@pokedocs/plugin-mermaid-ssr';
+import type { BrandingOptions } from '@pokedocs/theme';
 
 export interface PokedocsPresetOptions {
   /** Brand configuration compiled into the full theme (F1.4). */
