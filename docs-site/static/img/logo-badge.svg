@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="PokeDocs badge">
+  <defs>
+    <radialGradient id="lens" cx="50%" cy="50%" r="65%" fx="34%" fy="30%">
+      <stop offset="0%" stop-color="#BDE8FF"/>
+      <stop offset="42%" stop-color="#2EA8E0"/>
+      <stop offset="100%" stop-color="#0E5E8C"/>
+    </radialGradient>
+  </defs>
+  <rect width="256" height="256" rx="52" fill="#D8232A"/>
+  <circle cx="128" cy="112" r="66" fill="#FFF6EE"/>
+  <circle cx="128" cy="112" r="51" fill="url(#lens)"/>
+  <circle cx="106.5" cy="87.5" r="12" fill="#FFFFFF" opacity="0.85"/>
+  <circle cx="84" cy="212" r="12" fill="#FFCB05"/>
+  <circle cx="128" cy="212" r="12" fill="#FF8A80"/>
+  <circle cx="172" cy="212" r="12" fill="#7ADB8F"/>
+</svg>
