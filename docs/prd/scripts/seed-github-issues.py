@@ -176,7 +176,8 @@ def main():
             gh_api("repos/{owner}/{repo}/labels", "POST", lb)
             print(f"label created: {lb['name']}")
         except RuntimeError as e:
-            if "already_exists" in str(e):
+            # gh reports a label collision as a bare 422 Validation Failed
+            if "already_exists" in str(e) or "HTTP 422" in str(e):
                 print(f"label exists: {lb['name']}")
             else:
                 raise

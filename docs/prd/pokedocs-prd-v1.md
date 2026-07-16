@@ -232,6 +232,12 @@ Workspace tooling (pnpm workspaces), TypeScript config, package skeletons for ev
 - **S0.2.2 — Versioned releases with changesets**
   *As a maintainer, I want changesets-driven versioning and npm publish automation, so that releases are one merge, not a ritual.*
   Acceptance: merging a changeset PR publishes packages to npm with correct semver and changelogs.
+- **S0.2.3 — Playwright end-to-end tests for UI surfaces**
+  *As a maintainer, I want Playwright e2e tests covering the docs site's reader-facing UI (pages render, sidebar navigation works, mermaid diagrams appear), running headless in CI on every PR, so that UI regressions are caught before merge instead of by readers.*
+  Acceptance: playwright suite lives in the monorepo and runs headless in CI; covers homepage render, sidebar navigation, and mermaid diagram presence on the dogfood site; failures block merge like any other CI job.
+- **S0.2.4 — Adversarial AI review on every PR**
+  *As a maintainer, I want every PR reviewed by AI subagents — one reviewing the diff for correctness and convention adherence, one adversarially trying to break the change (edge cases, misuse, failure modes, actually running the code) — posting findings as PR comments, so that every PR is bulletproofed by more eyes than a solo maintainer has.*
+  Acceptance: workflow triggers on every pull request; distinct review and break-it passes post their findings as PR comments (or an explicit all-clear); AI jobs are continue-on-error so API flakiness never blocks merges — deterministic CI stays the gate; required secret setup documented in AGENTS.md.
 
 #### F0.3 Dogfood docs site
 - **S0.3.1 — PokeDocs documents itself with PokeDocs**

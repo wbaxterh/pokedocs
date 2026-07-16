@@ -1,0 +1,107 @@
+name: AI PR Review
+
+# Adversarial AI review on every PR (S0.2.4). Two independent passes:
+# a reviewer checking the diff against conventions and acceptance criteria,
+# and a breaker that actively tries to make the change fail. Both post PR
+# comments. Deterministic CI remains the merge gate — these jobs are
+# continue-on-error and skip entirely when ANTHROPIC_API_KEY is not set.
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    name: AI Review
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check for API key
+        id: key
+        run: |
+          if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Review the diff
+        if: steps.key.outputs.present == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are reviewing PR #${{ github.event.pull_request.number }} in ${{ github.repository }}.
+            Read AGENTS.md first — it defines this repo's conventions and workflow.
+            Fetch the PR diff with: gh pr diff ${{ github.event.pull_request.number }}
+            Read the PR body; if it references a story issue (Fixes #N), read that issue —
+            its acceptance criteria are the definition of done.
+
+            Review the diff for: correctness bugs, convention violations (AGENTS.md),
+            acceptance criteria the diff claims to meet but doesn't, missing tests for
+            changed behavior, and agent-readability regressions (this product's core
+            promise — e.g. discarding mermaid source, breaking ingest exclusion).
+
+            Post EXACTLY ONE comment on the PR via:
+            gh pr comment ${{ github.event.pull_request.number }} --body "..."
+            Format: "## 🔍 AI Review" header, then findings as a list with file:line
+            references and severity (high/medium/low), or "No findings — LGTM" if clean.
+            Be specific and terse. Do not restate the diff.
+          claude_args: '--allowedTools "Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh issue view:*),Bash(gh pr comment:*),Read,Grep,Glob"'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  break-it:
+    name: AI Break-It
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check for API key
+        id: key
+        run: |
+          if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Try to break the change
+        if: steps.key.outputs.present == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are an adversarial tester attacking PR #${{ github.event.pull_request.number }}
+            in ${{ github.repository }}. The workspace is checked out at the PR head with
+            dependencies installed. Read AGENTS.md for context, then:
+            gh pr diff ${{ github.event.pull_request.number }}
+
+            Actively try to BREAK the change — don't just read it:
+            - run `pnpm build` and `pnpm test`; probe changed code paths with quick
+              one-off scripts (node -e), malformed inputs, empty/huge values, wrong types
+            - look for: unhandled errors, path assumptions, cross-platform issues,
+              lockfile/config drift, scripts that fail from a clean checkout
+            - if the PR adds config or workflows, sanity-check the syntax and semantics.
+
+            You may create scratch files but never commit or push.
+            Post EXACTLY ONE comment on the PR via:
+            gh pr comment ${{ github.event.pull_request.number }} --body "..."
+            Format: "## 🔨 AI Break-It" header, then what you attacked, what broke
+            (with reproduction commands), and what held. If nothing broke, say so and
+            list what you tried. Be terse.
+          claude_args: '--allowedTools "Bash,Read,Grep,Glob,Write,Edit"'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
