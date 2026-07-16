@@ -1,0 +1,52 @@
+name: Release
+
+# Changesets release automation (S0.2.2). On every push to main:
+# with pending changesets, opens/updates a "Version Packages" PR;
+# with none pending (i.e. after that PR merges), publishes to npm.
+# Publishing requires the NPM_TOKEN repository secret — until it is
+# set, only the version-PR flow runs.
+
+on:
+  push:
+    branches: [main]
+
+concurrency: release-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check for npm token
+        id: npm
+        run: |
+          if [ -n "${{ secrets.NPM_TOKEN }}" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Version PR / Publish
+        if: steps.npm.outputs.present == 'true'
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release-packages
+          title: 'Version Packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Version PR only (no NPM_TOKEN yet)
+        if: steps.npm.outputs.present != 'true'
+        uses: changesets/action@v1
+        with:
+          title: 'Version Packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
