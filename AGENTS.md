@@ -53,6 +53,10 @@ Each package skeleton's `src/index.ts` doc comment names the story that implemen
 4. Commit referencing the issue: `Fixes #<n>`.
 5. PR against `main`, then `gh pr merge --squash --delete-branch` once CI is green.
 
+## Releases
+
+Changesets drives versioning (`.github/workflows/release.yml`). If your PR changes published package behavior, include a changeset: `pnpm changeset` (pick bump + summary; commit the generated `.changeset/*.md`). On merge to main, a "Version Packages" PR accumulates pending changesets; merging THAT publishes to npm. Publishing requires the `NPM_TOKEN` repository secret.
+
 ## PR review agents
 
 Every non-draft PR gets two AI passes (`.github/workflows/pr-review.yml`): a **reviewer** (diff vs conventions + acceptance criteria) and a **breaker** (adversarial testing — it runs the code). Both post PR comments. They are `continue-on-error`: deterministic CI is the merge gate, the agents are extra eyes. They require the `ANTHROPIC_API_KEY` repository secret (Settings → Secrets → Actions); without it they skip silently. Address or explicitly dismiss their findings before merging.
