@@ -21,3 +21,5 @@ jobs:
       - run: pnpm build
       - run: pnpm test
       - run: pnpm --filter docs-site build
+      - run: pnpm --filter docs-site exec playwright install --with-deps chromium
+      - run: pnpm --filter docs-site e2e
