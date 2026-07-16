@@ -27,7 +27,7 @@ const DOC = {
     ['05', 'pillars'],
     ['06', 'milestones'],
     ['23', 'features'],
-    ['49', 'user stories'],
+    ['51', 'user stories'],
   ],
 };
 
