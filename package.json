@@ -10,11 +10,16 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "clean": "tsc -b tsconfig.build.json --clean"
+    "clean": "tsc -b tsconfig.build.json --clean",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "vitest run"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.4",
     "@types/node": "^22",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": ">=20"
