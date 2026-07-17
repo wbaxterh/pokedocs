@@ -20,9 +20,17 @@ export interface PokedocsPresetOptions {
   agentEndpoints?: AgentEndpointsOptions | false;
   /** Frontmatter schema validation (F2.2). Set false to disable. */
   frontmatterSchema?: FrontmatterSchemaOptions | false;
-  /** Local full-text search, on by default (F1.6). Set false to disable. */
-  search?: boolean;
+  /**
+   * Local full-text search, on by default (F1.6). Set false to disable.
+   * Default engine per ADR-0002: @easyops-cn/docusaurus-search-local
+   * ('local'); 'pagefind' is the large-corpus escape hatch.
+   */
+  search?: boolean | { engine: SearchEngine };
 }
+
+/** Search engine choices decided by ADR-0002 (S1.6.2). */
+export type SearchEngine = 'local' | 'pagefind';
+export const DEFAULT_SEARCH_ENGINE: SearchEngine = 'local';
 
 /**
  * Docusaurus preset entry point. Implementation lands in M1 (S1.2.1);
