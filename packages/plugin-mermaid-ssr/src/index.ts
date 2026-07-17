@@ -16,8 +16,14 @@ export interface MermaidSsrOptions {
   themeVariables?: Record<string, string>;
 }
 
-/** Engine choice is an open spike (S1.3.4): rehype-mermaid vs mermaid-cli at build. */
-export type MermaidSsrEngine = 'rehype-mermaid' | 'mermaid-cli';
+/**
+ * Engine decision (ADR-0001, S1.3.4): rehype-mermaid `inline-svg`, wrapped in
+ * this CJS package with a deferred ESM import, ONE shared transformer across
+ * all files (per-file transformers cost 12x), and a source-preservation
+ * pre-pass. mermaid-cli was rejected: slower, a second CI browser, and no
+ * file/line error story.
+ */
+export const MERMAID_SSR_ENGINE = 'rehype-mermaid';
 
 /**
  * Docusaurus plugin entry point. Implementation lands in M1 (S1.3.1–S1.3.4);
