@@ -1,0 +1,8 @@
+{
+  "label": "ADRs",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "Architecture Decision Records — how PokeDocs decisions were made, with the benchmark numbers behind them."
+  }
+}
