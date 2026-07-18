@@ -1,6 +1,6 @@
 {
   "name": "pokedocs",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "PokeDocs CLI — check, export, deploy init, mcp",
   "license": "MIT",
   "repository": {

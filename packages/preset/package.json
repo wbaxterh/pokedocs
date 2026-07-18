@@ -1,6 +1,6 @@
 {
   "name": "@pokedocs/preset",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "The PokeDocs distribution core — wires theme, plugins, search, mermaid, and agent endpoints into Docusaurus by default",
   "license": "MIT",
   "repository": {

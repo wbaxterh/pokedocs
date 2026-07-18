@@ -1,6 +1,6 @@
 {
   "name": "create-pokedocs",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Scaffold an agent-readable, diagram-native, branded docs site in one command",
   "license": "MIT",
   "repository": {

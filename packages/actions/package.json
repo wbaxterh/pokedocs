@@ -1,6 +1,6 @@
 {
   "name": "@pokedocs/actions",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "GitHub Actions workflow templates for PokeDocs sites — docs-drift checking, AI doc updates, and deploy pipelines",
   "license": "MIT",
   "repository": {

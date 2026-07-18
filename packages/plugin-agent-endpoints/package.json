@@ -1,6 +1,6 @@
 {
   "name": "@pokedocs/plugin-agent-endpoints",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Zero-config agent surface for Docusaurus — llms.txt, llms-full.txt, per-page .md twins, and discovery links, all as static build artifacts",
   "license": "MIT",
   "repository": {

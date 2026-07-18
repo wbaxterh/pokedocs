@@ -1,6 +1,6 @@
 {
   "name": "@pokedocs/plugin-mermaid-ssr",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Build-time mermaid rendering for Docusaurus — SVG baked into static HTML, source preserved for agents, build fails on bad syntax",
   "license": "MIT",
   "repository": {

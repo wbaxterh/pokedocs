@@ -1,6 +1,6 @@
 {
   "name": "@pokedocs/theme",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "PokeDocs theme — branding compiler (config → full theme), mermaid interaction layer, page-level agent actions",
   "license": "MIT",
   "repository": {
