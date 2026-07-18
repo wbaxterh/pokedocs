@@ -27,6 +27,13 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Cache playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      # Mermaid renders at build time via chromium (F1.3)
+      - run: pnpm --filter docs-site exec playwright install --with-deps chromium
       - run: pnpm build
       - run: pnpm --filter docs-site build
       - uses: actions/upload-pages-artifact@v3
