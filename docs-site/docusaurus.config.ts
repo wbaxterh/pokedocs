@@ -1,5 +1,6 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type { Config } from '@docusaurus/types';
+import { rehypeMermaidSsr } from '@pokedocs/plugin-mermaid-ssr';
 import type { PokedocsPresetOptions } from '@pokedocs/preset';
 import { themes as prismThemes } from 'prism-react-renderer';
 
@@ -27,14 +28,9 @@ const config: Config = {
   projectName: 'pokedocs',
 
   onBrokenLinks: 'throw',
-
-  markdown: {
-    mermaid: true,
-  },
-  // Upstream client-side mermaid, temporarily: replaced by
-  // @pokedocs/plugin-mermaid-ssr when F1.3 lands (build-time SVG,
-  // source preserved, build fails on bad syntax).
-  themes: ['@docusaurus/theme-mermaid'],
+  // F1.3 live: mermaid renders at build time via @pokedocs/plugin-mermaid-ssr
+  // (see the docs preset options below). markdown.mermaid and theme-mermaid
+  // must stay OFF — they would consume the fences before rehype sees them.
 
   i18n: {
     defaultLocale: 'en',
@@ -49,6 +45,7 @@ const config: Config = {
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/wbaxterh/pokedocs/tree/main/docs-site/',
+          beforeDefaultRehypePlugins: [[rehypeMermaidSsr, {}]],
         },
         blog: false,
         theme: {

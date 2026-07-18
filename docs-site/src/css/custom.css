@@ -36,3 +36,20 @@
 .navbar__title {
   font-weight: 800;
 }
+
+/* Build-time mermaid (F1.3): inline SVG with preserved source.
+   Interim dark-mode treatment — a light card so light-rendered SVGs stay
+   legible; native dark rendering arrives with S5.1.2. */
+.pokedocs-mermaid {
+  text-align: center;
+  margin: 1rem 0;
+}
+.pokedocs-mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+[data-theme='dark'] .pokedocs-mermaid {
+  background: #fffdf8;
+  border-radius: 8px;
+  padding: 0.75rem;
+}

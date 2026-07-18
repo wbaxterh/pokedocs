@@ -18,13 +18,24 @@ test('sidebar navigation reaches every section', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1, name: 'Roadmap' })).toBeVisible();
 });
 
-test('mermaid architecture diagram renders as SVG', async ({ page }) => {
-  await page.goto('./architecture');
-  // Client-side render today (@docusaurus/theme-mermaid); when F1.3 lands
-  // this assertion tightens to "SVG present in static HTML without JS".
-  const diagram = page.locator('.docusaurus-mermaid-container svg').first();
-  await expect(diagram).toBeVisible({ timeout: 15_000 });
-  await expect(diagram.locator('text=@pokedocs/preset').first()).toBeVisible();
+test('mermaid diagram is baked into static HTML with source preserved', async ({ page }) => {
+  // F1.3: the raw HTML must carry BOTH the inline SVG (S1.3.1) and the
+  // verbatim mermaid source for agents (S1.3.2) — no JavaScript involved.
+  const res = await page.request.get('./architecture');
+  const html = await res.text();
+  expect(html).toContain('data-mermaid-source');
+  expect(html).toContain('graph TB');
+  expect(html).toMatch(/pokedocs-mermaid[^>]*>[\s\S]*?<svg/);
+});
+
+test('mermaid diagram is visible with JavaScript disabled', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto('http://localhost:3517/pokedocs/architecture');
+  const diagram = page.locator('.pokedocs-mermaid svg').first();
+  await expect(diagram).toBeVisible();
+  await expect(page.locator('.pokedocs-mermaid').first()).toContainText('@pokedocs/preset');
+  await context.close();
 });
 
 test('color mode toggle switches themes', async ({ page }) => {
