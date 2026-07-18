@@ -30,7 +30,8 @@ describe('wrapMermaidFences', () => {
     expect(wrapper.tagName).toBe('div');
     expect(wrapper.properties?.className).toEqual(['pokedocs-mermaid']);
     expect(wrapper.properties?.dataMermaidSource).toBe(source);
-    expect((wrapper.children?.[0] as HastElement).tagName).toBe('pre');
+    const inner = (wrapper.children ?? [])[0] as HastElement;
+    expect(inner.tagName).toBe('pre');
   });
 
   it('leaves non-mermaid code fences untouched', () => {
@@ -47,7 +48,8 @@ describe('wrapMermaidFences', () => {
       ],
     });
     expect(wrapMermaidFences(root)).toBe(0);
-    expect((root.children?.[0] as HastElement).tagName).toBe('pre');
+    const first = (root.children ?? [])[0] as HastElement;
+    expect(first.tagName).toBe('pre');
   });
 
   it('finds fences nested deeper in the tree', () => {
