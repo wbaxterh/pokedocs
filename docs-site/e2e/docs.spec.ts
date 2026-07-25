@@ -13,6 +13,25 @@ async function readPrimaryVar(page: import('@playwright/test').Page) {
   );
 }
 
+test('favicon is injected from the branding block (S1.2.1)', async ({
+  page,
+}) => {
+  await page.goto('.');
+  await expect(
+    page.locator('link[rel="icon"][href="/pokedocs/img/logo-badge.svg"]'),
+  ).toHaveCount(1);
+});
+
+test('search returns results with zero signup (S1.6.1)', async ({ page }) => {
+  await page.goto('.');
+  const input = page.getByPlaceholder(/search/i).first();
+  await input.click();
+  await input.fill('branding');
+  await expect(
+    page.getByRole('listbox').getByRole('option', { name: /branding/i }).first(),
+  ).toBeVisible();
+});
+
 test('branding ladder is compiled into the page (light mode)', async ({
   browser,
 }) => {
