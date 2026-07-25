@@ -11,7 +11,7 @@ description: PokeDocs is an open-source, agent-native documentation framework bu
 PokeDocs is an open-source, agent-native documentation framework built as a **distribution on top of [Docusaurus](https://docusaurus.io)**. Everything a modern docs site needs, on by default:
 
 1. **Diagram-native** — mermaid rendered to SVG at build time, source preserved for agents, syntax errors fail the build
-2. **Branded in one line** — `brandColor` + logo in config → a complete, contrast-checked theme
+2. **[Branded in one line](./branding.md)** — `brandColor` + logo in config → a complete, contrast-checked theme
 3. **Drift-aware** — shipped CI that checks whether code changes need doc changes
 4. **Agent-readable by default** — `llms.txt`, `llms-full.txt`, per-page `.md` twins, MCP-ready discovery, all as static files
 5. **Host anywhere** — GitHub Pages, Vercel, Netlify, Docker/nginx — no vendor, no server, no lock-in

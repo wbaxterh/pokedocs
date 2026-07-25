@@ -47,6 +47,9 @@ importers:
       '@pokedocs/preset':
         specifier: workspace:*
         version: link:../packages/preset
+      '@pokedocs/theme':
+        specifier: workspace:^
+        version: link:../packages/theme
       clsx:
         specifier: ^2.0.0
         version: 2.1.1

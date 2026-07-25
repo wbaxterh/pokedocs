@@ -19,12 +19,11 @@ export interface BrandingOptions {
   colorMode?: 'light' | 'dark' | 'system';
 }
 
-/**
- * Compile a branding block into CSS custom properties.
- * Implementation lands in M1 (S1.4.1/S1.4.2); the skeleton pins the contract.
- */
-export function compileBranding(_options: BrandingOptions): never {
-  throw new Error(
-    '@pokedocs/theme branding compiler is not implemented yet — tracked by S1.4.1 (github.com/wbaxterh/pokedocs/issues).',
-  );
-}
+export {
+  type CompileBrandingConfig,
+  type CompiledBranding,
+  compileBranding,
+  INFIMA_DARK_BACKGROUND,
+  type ShadeLadder,
+} from './branding.js';
+export { contrastRatio, lightnessOf } from './color.js';

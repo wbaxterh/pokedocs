@@ -1,0 +1,271 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`S1.4.2 — dark mode correct by construction > snapshot: computed theme for #000000 1`] = `
+{
+  "css": ":root {
+  --ifm-color-primary: #000000;
+  --ifm-color-primary-dark: #000000;
+  --ifm-color-primary-darker: #000000;
+  --ifm-color-primary-darkest: #000000;
+  --ifm-color-primary-light: #000000;
+  --ifm-color-primary-lighter: #000000;
+  --ifm-color-primary-lightest: #000000;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #838383;
+  --ifm-color-primary-dark: #767676;
+  --ifm-color-primary-darker: #6f6f6f;
+  --ifm-color-primary-darkest: #5c5c5c;
+  --ifm-color-primary-light: #909090;
+  --ifm-color-primary-lighter: #979797;
+  --ifm-color-primary-lightest: #aaaaaa;
+  --docusaurus-highlighted-code-line-bg: rgba(131, 131, 131, 0.15);
+}
+",
+  "dark": {
+    "dark": "#767676",
+    "darker": "#6f6f6f",
+    "darkest": "#5c5c5c",
+    "light": "#909090",
+    "lighter": "#979797",
+    "lightest": "#aaaaaa",
+    "primary": "#838383",
+  },
+  "light": {
+    "dark": "#000000",
+    "darker": "#000000",
+    "darkest": "#000000",
+    "light": "#000000",
+    "lighter": "#000000",
+    "lightest": "#000000",
+    "primary": "#000000",
+  },
+}
+`;
+
+exports[`S1.4.2 — dark mode correct by construction > snapshot: computed theme for #2ea8e0 1`] = `
+{
+  "css": ":root {
+  --ifm-color-primary: #2ea8e0;
+  --ifm-color-primary-dark: #1f9bd4;
+  --ifm-color-primary-darker: #1e92c8;
+  --ifm-color-primary-darkest: #1878a5;
+  --ifm-color-primary-light: #46b2e3;
+  --ifm-color-primary-lighter: #51b7e5;
+  --ifm-color-primary-lightest: #75c5ea;
+  --docusaurus-highlighted-code-line-bg: rgba(46, 168, 224, 0.08);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #4db5e5;
+  --ifm-color-primary-dark: #32aae1;
+  --ifm-color-primary-darker: #25a4df;
+  --ifm-color-primary-darkest: #1b88bb;
+  --ifm-color-primary-light: #68c0e9;
+  --ifm-color-primary-lighter: #75c6eb;
+  --ifm-color-primary-lightest: #9dd6f1;
+  --docusaurus-highlighted-code-line-bg: rgba(77, 181, 229, 0.15);
+}
+",
+  "dark": {
+    "dark": "#32aae1",
+    "darker": "#25a4df",
+    "darkest": "#1b88bb",
+    "light": "#68c0e9",
+    "lighter": "#75c6eb",
+    "lightest": "#9dd6f1",
+    "primary": "#4db5e5",
+  },
+  "light": {
+    "dark": "#1f9bd4",
+    "darker": "#1e92c8",
+    "darkest": "#1878a5",
+    "light": "#46b2e3",
+    "lighter": "#51b7e5",
+    "lightest": "#75c5ea",
+    "primary": "#2ea8e0",
+  },
+}
+`;
+
+exports[`S1.4.2 — dark mode correct by construction > snapshot: computed theme for #25c2a0 1`] = `
+{
+  "css": ":root {
+  --ifm-color-primary: #25c2a0;
+  --ifm-color-primary-dark: #21af90;
+  --ifm-color-primary-darker: #1fa588;
+  --ifm-color-primary-darkest: #1a8870;
+  --ifm-color-primary-light: #29d5b0;
+  --ifm-color-primary-lighter: #32d8b4;
+  --ifm-color-primary-lightest: #4fddbf;
+  --docusaurus-highlighted-code-line-bg: rgba(37, 194, 160, 0.08);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #46cbae;
+  --ifm-color-primary-dark: #36c0a2;
+  --ifm-color-primary-darker: #33b599;
+  --ifm-color-primary-darkest: #2a957e;
+  --ifm-color-primary-light: #5bd1b7;
+  --ifm-color-primary-lighter: #66d4bc;
+  --ifm-color-primary-lightest: #86ddca;
+  --docusaurus-highlighted-code-line-bg: rgba(70, 203, 174, 0.15);
+}
+",
+  "dark": {
+    "dark": "#36c0a2",
+    "darker": "#33b599",
+    "darkest": "#2a957e",
+    "light": "#5bd1b7",
+    "lighter": "#66d4bc",
+    "lightest": "#86ddca",
+    "primary": "#46cbae",
+  },
+  "light": {
+    "dark": "#21af90",
+    "darker": "#1fa588",
+    "darkest": "#1a8870",
+    "light": "#29d5b0",
+    "lighter": "#32d8b4",
+    "lightest": "#4fddbf",
+    "primary": "#25c2a0",
+  },
+}
+`;
+
+exports[`S1.4.2 — dark mode correct by construction > snapshot: computed theme for #111827 1`] = `
+{
+  "css": ":root {
+  --ifm-color-primary: #111827;
+  --ifm-color-primary-dark: #0f1623;
+  --ifm-color-primary-darker: #0e1421;
+  --ifm-color-primary-darkest: #0c111b;
+  --ifm-color-primary-light: #131a2b;
+  --ifm-color-primary-lighter: #141c2d;
+  --ifm-color-primary-lightest: #161f33;
+  --docusaurus-highlighted-code-line-bg: rgba(17, 24, 39, 0.08);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #7f838b;
+  --ifm-color-primary-dark: #72767e;
+  --ifm-color-primary-darker: #6b6f77;
+  --ifm-color-primary-darkest: #595c62;
+  --ifm-color-primary-light: #8d9198;
+  --ifm-color-primary-lighter: #94979e;
+  --ifm-color-primary-lightest: #a9acb1;
+  --docusaurus-highlighted-code-line-bg: rgba(127, 131, 139, 0.15);
+}
+",
+  "dark": {
+    "dark": "#72767e",
+    "darker": "#6b6f77",
+    "darkest": "#595c62",
+    "light": "#8d9198",
+    "lighter": "#94979e",
+    "lightest": "#a9acb1",
+    "primary": "#7f838b",
+  },
+  "light": {
+    "dark": "#0f1623",
+    "darker": "#0e1421",
+    "darkest": "#0c111b",
+    "light": "#131a2b",
+    "lighter": "#141c2d",
+    "lightest": "#161f33",
+    "primary": "#111827",
+  },
+}
+`;
+
+exports[`S1.4.2 — dark mode correct by construction > snapshot: computed theme for #d8232a 1`] = `
+{
+  "css": ":root {
+  --ifm-color-primary: #d8232a;
+  --ifm-color-primary-dark: #c22026;
+  --ifm-color-primary-darker: #b81e24;
+  --ifm-color-primary-darkest: #97191d;
+  --ifm-color-primary-light: #de363c;
+  --ifm-color-primary-lighter: #e04147;
+  --ifm-color-primary-lightest: #e56166;
+  --docusaurus-highlighted-code-line-bg: rgba(216, 35, 42, 0.08);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #e05257;
+  --ifm-color-primary-dark: #db383e;
+  --ifm-color-primary-darker: #d92b31;
+  --ifm-color-primary-darkest: #b62126;
+  --ifm-color-primary-light: #e56c70;
+  --ifm-color-primary-lighter: #e7797d;
+  --ifm-color-primary-lightest: #eea0a3;
+  --docusaurus-highlighted-code-line-bg: rgba(224, 82, 87, 0.15);
+}
+",
+  "dark": {
+    "dark": "#db383e",
+    "darker": "#d92b31",
+    "darkest": "#b62126",
+    "light": "#e56c70",
+    "lighter": "#e7797d",
+    "lightest": "#eea0a3",
+    "primary": "#e05257",
+  },
+  "light": {
+    "dark": "#c22026",
+    "darker": "#b81e24",
+    "darkest": "#97191d",
+    "light": "#de363c",
+    "lighter": "#e04147",
+    "lightest": "#e56166",
+    "primary": "#d8232a",
+  },
+}
+`;
+
+exports[`S1.4.2 — dark mode correct by construction > snapshot: computed theme for #ffee58 1`] = `
+{
+  "css": ":root {
+  --ifm-color-primary: #ffee58;
+  --ifm-color-primary-dark: #ffeb36;
+  --ifm-color-primary-darker: #ffe925;
+  --ifm-color-primary-darkest: #f0d800;
+  --ifm-color-primary-light: #fff17a;
+  --ifm-color-primary-lighter: #fff38b;
+  --ifm-color-primary-lightest: #fff8bf;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 238, 88, 0.08);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #fff171;
+  --ifm-color-primary-dark: #ffed4c;
+  --ifm-color-primary-darker: #ffec3a;
+  --ifm-color-primary-darkest: #ffe603;
+  --ifm-color-primary-light: #fff596;
+  --ifm-color-primary-lighter: #fff6a8;
+  --ifm-color-primary-lightest: #fffcdf;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 241, 113, 0.15);
+}
+",
+  "dark": {
+    "dark": "#ffed4c",
+    "darker": "#ffec3a",
+    "darkest": "#ffe603",
+    "light": "#fff596",
+    "lighter": "#fff6a8",
+    "lightest": "#fffcdf",
+    "primary": "#fff171",
+  },
+  "light": {
+    "dark": "#ffeb36",
+    "darker": "#ffe925",
+    "darkest": "#f0d800",
+    "light": "#fff17a",
+    "lighter": "#fff38b",
+    "lightest": "#fff8bf",
+    "primary": "#ffee58",
+  },
+}
+`;
