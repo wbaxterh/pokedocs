@@ -4,7 +4,7 @@ test('homepage renders with brand and content', async ({ page }) => {
   await page.goto('.');
   await expect(page).toHaveTitle(/PokeDocs/);
   await expect(page.getByRole('heading', { level: 1, name: 'PokeDocs' })).toBeVisible();
-  await expect(page.getByAltText('PokeDocs lens logo')).toBeVisible();
+  await expect(page.getByAltText('PokeDocs badge logo')).toBeVisible();
 });
 
 test('sidebar navigation reaches every section', async ({ page }) => {
