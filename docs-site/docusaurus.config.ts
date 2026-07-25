@@ -1,31 +1,18 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type { Config } from '@docusaurus/types';
-import { rehypeMermaidSsr } from '@pokedocs/plugin-mermaid-ssr';
 import type { PokedocsPresetOptions } from '@pokedocs/preset';
-import { compileBranding } from '@pokedocs/theme';
 import { themes as prismThemes } from 'prism-react-renderer';
 
 // The dogfood gate (S0.3.1): this site is built from the packages in this
-// repo and is the canary for upstream Docusaurus upgrades. Once S1.2.1 lands,
-// the classic-preset block below collapses into @pokedocs/preset with these
-// options — the config we ship is the config we live with.
-//
-// Pillar 2 dogfood (F1.4): the site's entire brand is this one block — the
-// compiled ladder is injected by the pokedocs-branding-css plugin below, and
-// custom.css carries no Infima variables. Flip debug to true to print every
-// computed shade during the build.
-const branding = compileBranding(
-  {
-    brandColor: '#D8232A',
-    logo: 'img/logo-badge.svg',
-  } satisfies PokedocsPresetOptions['branding'],
-  { debug: false },
-);
-
+// repo and is the canary for upstream Docusaurus upgrades. The config we
+// ship is the config we live with — and since S1.2.1 it is one preset
+// entry: branding (F1.4), build-time mermaid (F1.3), and local search
+// (F1.6) are all active below with zero site-side wiring. The favicon is
+// injected from branding; markdown.mermaid and theme-mermaid must stay
+// OFF (they would consume the fences before rehype sees them).
 const config: Config = {
   title: 'PokeDocs',
   tagline: 'Docs that humans love — and agents can actually read.',
-  favicon: branding.favicon,
 
   future: {
     v4: true,
@@ -37,41 +24,28 @@ const config: Config = {
   projectName: 'pokedocs',
 
   onBrokenLinks: 'throw',
-  // F1.3 live: mermaid renders at build time via @pokedocs/plugin-mermaid-ssr
-  // (see the docs preset options below). markdown.mermaid and theme-mermaid
-  // must stay OFF — they would consume the fences before rehype sees them.
 
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
   },
 
-  plugins: [
-    function pokedocsBrandingCss() {
-      return {
-        name: 'pokedocs-branding-css',
-        injectHtmlTags: () => ({
-          headTags: [{ tagName: 'style', innerHTML: branding.css }],
-        }),
-      };
-    },
-  ],
-
   presets: [
     [
-      'classic',
+      '@pokedocs/preset',
       {
+        branding: {
+          brandColor: '#D8232A',
+          logo: 'img/logo-badge.svg',
+        },
         docs: {
-          routeBasePath: '/',
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/wbaxterh/pokedocs/tree/main/docs-site/',
-          beforeDefaultRehypePlugins: [[rehypeMermaidSsr, {}]],
         },
-        blog: false,
         theme: {
           customCss: './src/css/custom.css',
         },
-      } satisfies Preset.Options,
+      } satisfies PokedocsPresetOptions,
     ],
   ],
 
@@ -84,8 +58,7 @@ const config: Config = {
       title: 'PokeDocs',
       logo: {
         alt: 'PokeDocs badge logo',
-        src: branding.logo?.light ?? 'img/logo-badge.svg',
-        srcDark: branding.logo?.dark,
+        src: 'img/logo-badge.svg',
       },
       items: [
         {

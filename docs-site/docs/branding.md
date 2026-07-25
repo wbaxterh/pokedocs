@@ -59,6 +59,9 @@ compileBranding({ brandColor: '#D8232A' }, { debug: true })
   dark primary = brand + 21% white tint → 4.52:1 against #1b1b1d
 ```
 
-Until the `@pokedocs/preset` wiring lands (F1.2), sites consume the compiler
-directly the way [this site's config](https://github.com/wbaxterh/pokedocs/blob/main/docs-site/docusaurus.config.ts)
-does; the preset will make the block above the only thing you write.
+The `branding` block is a `@pokedocs/preset` option: the preset compiles it
+and injects the results — stylesheet, favicon, font link — automatically, so
+the block above is the only thing you write. [This site's
+config](https://github.com/wbaxterh/pokedocs/blob/main/docs-site/docusaurus.config.ts)
+is the live example. The compiler is also usable standalone as
+`compileBranding` from `@pokedocs/theme`.
