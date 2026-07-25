@@ -1,4 +1,38 @@
 import { expect, test } from '@playwright/test';
+import { compileBranding } from '@pokedocs/theme';
+
+// F1.4: recompile the site's branding block here and assert the served page
+// carries exactly the compiled ladder — config in, theme out, no custom.css.
+const branding = compileBranding({ brandColor: '#D8232A' });
+
+async function readPrimaryVar(page: import('@playwright/test').Page) {
+  return page.evaluate(() =>
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--ifm-color-primary')
+      .trim(),
+  );
+}
+
+test('branding ladder is compiled into the page (light mode)', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ colorScheme: 'light' });
+  const page = await context.newPage();
+  await page.goto('http://localhost:3517/pokedocs/');
+  expect(await readPrimaryVar(page)).toBe(branding.light.primary);
+  await context.close();
+});
+
+test('dark mode uses the lifted primary, not a darkened one (S1.4.2)', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ colorScheme: 'dark' });
+  const page = await context.newPage();
+  await page.goto('http://localhost:3517/pokedocs/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  expect(await readPrimaryVar(page)).toBe(branding.dark.primary);
+  await context.close();
+});
 
 test('homepage renders with brand and content', async ({ page }) => {
   await page.goto('.');

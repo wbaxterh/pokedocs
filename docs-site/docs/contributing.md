@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 description: How to contribute to PokeDocs — one story, one PR. Build commands, workflow, and how the AI review agents fit in.
 ---
 
