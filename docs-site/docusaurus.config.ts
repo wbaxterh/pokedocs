@@ -9,14 +9,14 @@ import { themes as prismThemes } from 'prism-react-renderer';
 // the classic-preset block below collapses into @pokedocs/preset with these
 // options — the config we ship is the config we live with.
 const plannedPreset: PokedocsPresetOptions = {
-  branding: { brandColor: '#D8232A', logo: 'img/logo.svg' },
+  branding: { brandColor: '#D8232A', logo: 'img/logo-badge.svg' },
 };
 void plannedPreset;
 
 const config: Config = {
   title: 'PokeDocs',
   tagline: 'Docs that humans love — and agents can actually read.',
-  favicon: 'img/logo.svg',
+  favicon: 'img/logo-badge.svg',
 
   future: {
     v4: true,
@@ -63,8 +63,8 @@ const config: Config = {
     navbar: {
       title: 'PokeDocs',
       logo: {
-        alt: 'PokeDocs lens logo',
-        src: 'img/logo.svg',
+        alt: 'PokeDocs badge logo',
+        src: 'img/logo-badge.svg',
       },
       items: [
         {
