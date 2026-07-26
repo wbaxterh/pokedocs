@@ -24,9 +24,14 @@ The full argument, with evidence, lives in the [PRD](https://github.com/wbaxterh
 
 ## Status
 
-🚧 **Building milestone M0 (Foundation).** This site is the dogfood: it's built from the packages in this repo and upgrades with them. The [roadmap](/roadmap) tracks every milestone; every user story is a [GitHub issue](https://github.com/wbaxterh/pokedocs/issues).
+🚧 **Building milestone M1 (MVP core).** This site is the dogfood: everything here — the theme, the search box, the diagrams — runs through `@pokedocs/preset` exactly as scaffolded sites do. The [roadmap](/roadmap) tracks every milestone; every user story is a [GitHub issue](https://github.com/wbaxterh/pokedocs/issues).
 
 ```bash
-# the goal — not yet live:
 npx create-pokedocs my-docs
 ```
+
+The scaffolder generates a docs-only site — config-driven landing page, agent
+authoring scaffold (`AGENTS.md`/`CLAUDE.md`), brand-colored logo, optional
+GitHub Pages workflow — and CI proves the generated site builds clean on
+every commit. First npm release is imminent; until then the packages run
+from this repo.

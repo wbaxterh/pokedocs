@@ -29,3 +29,5 @@ jobs:
       - run: pnpm test
       - run: pnpm --filter docs-site build
       - run: pnpm --filter docs-site e2e
+      # S1.1.1 acceptance: a scaffolded site must build clean, end to end
+      - run: ./scripts/smoke-scaffold.sh

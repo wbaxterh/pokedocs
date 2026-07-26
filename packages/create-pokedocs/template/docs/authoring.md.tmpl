@@ -1,0 +1,36 @@
+---
+sidebar_position: 2
+description: Authoring conventions for {{SITE_NAME}} — frontmatter, sidebar ordering, and build-time mermaid diagrams.
+---
+
+# Authoring
+
+## Frontmatter
+
+Every page carries a `description` — it feeds search results and is how
+AI agents decide whether a page is relevant without reading all of it.
+Order pages with `sidebar_position`; the sidebar itself mirrors the
+`docs/` folder structure.
+
+## Diagrams
+
+Mermaid fences render to SVG **at build time** — readers never wait on a
+JavaScript renderer, and the diagram source stays in the page for agents:
+
+```mermaid
+graph LR
+  Author -- "writes mermaid" --> Build
+  Build -- "ships SVG + source" --> Readers
+  Build -- "ships SVG + source" --> Agents
+```
+
+A syntax error in any fence fails the build with the file, line, and a
+caret pointing at the problem — fix the diagram and rebuild. There is no
+"broken diagram in production" state.
+
+## Theme
+
+The color theme is compiled from `branding.brandColor` in
+`docusaurus.config.ts` — including the dark mode palette, which is
+derived *lighter* than the brand color so text stays readable. Don't
+hand-write `--ifm-color-primary` CSS variables.

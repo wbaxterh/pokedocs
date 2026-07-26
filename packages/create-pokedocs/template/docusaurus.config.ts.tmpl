@@ -1,0 +1,75 @@
+import type * as Preset from '@docusaurus/preset-classic';
+import type { Config } from '@docusaurus/types';
+import type { PokedocsPresetOptions } from '@pokedocs/preset';
+
+const config: Config = {
+  title: '{{SITE_NAME}}',
+  tagline: '{{TAGLINE}}',
+
+  url: '{{URL}}',
+  baseUrl: '{{BASE_URL}}',
+
+  onBrokenLinks: 'throw',
+
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en'],
+  },
+
+  // The landing page (src/pages/index.tsx) renders these cards — edit the
+  // config, not the component.
+  customFields: {
+    landing: {
+      cards: [
+        {
+          title: 'Get started',
+          description: 'Run the site locally and publish your first page.',
+          to: '/intro',
+        },
+        {
+          title: 'Authoring',
+          description:
+            'Frontmatter, sidebars, and diagrams that agents can read.',
+          to: '/authoring',
+        },
+      ],
+    },
+  },
+
+  presets: [
+    [
+      '@pokedocs/preset',
+      {
+        branding: {
+          brandColor: '{{BRAND_COLOR}}',
+          logo: '{{LOGO_PATH}}',
+        },
+        docs: {
+          sidebarPath: './sidebars.ts',
+        },
+        theme: {
+          customCss: './src/css/custom.css',
+        },
+      } satisfies PokedocsPresetOptions,
+    ],
+  ],
+
+  themeConfig: {
+    colorMode: {
+      respectPrefersColorScheme: true,
+    },
+    navbar: {
+      title: '{{SITE_NAME}}',
+      logo: {
+        alt: '{{SITE_NAME}} logo',
+        src: '{{LOGO_PATH}}',
+      },
+    },
+    footer: {
+      style: 'dark',
+      copyright: `Copyright © ${new Date().getFullYear()} {{SITE_NAME}}`,
+    },
+  } satisfies Preset.ThemeConfig,
+};
+
+export default config;
