@@ -92,6 +92,9 @@ importers:
 
   packages/plugin-mermaid-ssr:
     dependencies:
+      playwright:
+        specifier: ^1.61.1
+        version: 1.61.1
       rehype-mermaid:
         specifier: ^3.0.0
         version: 3.0.0(playwright@1.61.1)

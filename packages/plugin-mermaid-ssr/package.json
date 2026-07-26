@@ -26,6 +26,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "playwright": "^1.61.1",
     "rehype-mermaid": "^3.0.0"
   }
 }

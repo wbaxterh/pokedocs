@@ -9,24 +9,26 @@
 export interface ScaffoldOptions {
   /** Target directory for the new site. */
   directory: string;
-  /** Site display name. */
+  /** Site display name. Defaults to the directory basename. */
   siteName?: string;
+  /** Site tagline, shown in the landing hero. */
+  tagline?: string;
   /** Primary brand color (hex), compiled by @pokedocs/theme (F1.4). */
   brandColor?: string;
-  /** Logo file to copy into the scaffold. */
+  /** Logo file (.svg/.png) copied into the scaffold; omitted → a brand-colored default is generated. */
   logo?: string;
   /** Deploy target scaffolded via `pokedocs deploy init` (S1.7.1/S1.7.2). */
   deploy?: 'github-pages' | 'docker' | 'none';
+  /** GitHub owner (user or org) — required when deploy is 'github-pages'. */
+  githubOwner?: string;
+  /** GitHub repository name — defaults to the directory basename. */
+  githubRepo?: string;
   /** Accept all defaults without prompting (S1.1.3). */
   yes?: boolean;
 }
 
-/**
- * Scaffold a new PokeDocs site. Implementation lands in M1 (S1.1.1–S1.1.3);
- * the skeleton pins the public shape.
- */
-export async function scaffold(_options: ScaffoldOptions): Promise<never> {
-  throw new Error(
-    'create-pokedocs is not implemented yet — tracked by S1.1.1 (github.com/wbaxterh/pokedocs/issues).',
-  );
-}
+export {
+  SCAFFOLD_DEFAULTS,
+  type ScaffoldResult,
+  scaffold,
+} from './scaffold.js';

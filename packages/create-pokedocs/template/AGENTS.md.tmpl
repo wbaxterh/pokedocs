@@ -1,0 +1,53 @@
+# {{SITE_NAME}} — Agent Guide
+
+This is a PokeDocs documentation site (Docusaurus distribution). You are
+likely here to write or edit documentation. This file is the complete
+orientation.
+
+## Build & test
+
+```bash
+npm install
+npx playwright install chromium   # once — mermaid renders via chromium at build time
+npm run start                     # live dev server
+npm run build                     # production build; FAILS on broken links or bad mermaid
+npm run typecheck
+```
+
+Always run `npm run build` before committing doc changes — it is the
+validity check for links and diagrams.
+
+## Layout
+
+```
+docs/                 all documentation pages; sidebar mirrors this tree
+src/pages/index.tsx   landing page — driven by customFields in docusaurus.config.ts
+src/css/custom.css    site extras only; the color theme is compiled from config
+static/img/           logo and other assets
+docusaurus.config.ts  single source of truth: branding, landing cards, navbar
+```
+
+## Authoring conventions
+
+- Every page starts with frontmatter containing a one-sentence
+  `description:` — agents and search read it before the body. Add
+  `sidebar_position:` to control ordering.
+- Docs are served from the site root (`/`); a file at
+  `docs/guides/setup.md` becomes `/guides/setup`.
+- Link between pages with relative `.md` paths (`./authoring.md`), not
+  URLs — the build rewrites and validates them.
+- Mermaid fences are compiled to SVG at build time and the source is
+  preserved in the HTML for agents. Write valid mermaid: a syntax error
+  fails the build with file and line. Do not wrap diagrams in images or
+  code blocks of another language.
+- The color theme comes entirely from `branding.brandColor` in
+  `docusaurus.config.ts`. Never hand-write `--ifm-color-primary`
+  variables in custom.css.
+- To exclude a page from a build, use `draft: true` frontmatter.
+
+## Landing page
+
+Edit `customFields.landing.cards` in `docusaurus.config.ts` — title,
+description, and target route per card. Do not edit
+`src/pages/index.tsx` for content changes; every card's `to:` must point
+at an existing doc route or the build fails.

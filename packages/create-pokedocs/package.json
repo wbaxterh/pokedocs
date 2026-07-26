@@ -20,7 +20,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "template"
   ],
   "publishConfig": {
     "access": "public"
