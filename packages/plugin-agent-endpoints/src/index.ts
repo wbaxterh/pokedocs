@@ -162,14 +162,27 @@ export default function pluginAgentEndpoints(
             /\.md$/,
             '',
           );
-          const htmlPath =
+          // trailingSlash: undefined/true emits <rel>/index.html;
+          // trailingSlash: false emits a flat <rel>.html.
+          const candidates =
             rel === 'index'
-              ? path.join(outDir, 'index.html')
-              : path.join(outDir, rel, 'index.html');
-          const html = await readFile(htmlPath, 'utf8').catch(() => null);
+              ? [path.join(outDir, 'index.html')]
+              : [
+                  path.join(outDir, rel, 'index.html'),
+                  path.join(outDir, `${rel}.html`),
+                ];
+          let htmlPath = candidates[0];
+          let html: string | null = null;
+          for (const candidate of candidates) {
+            html = await readFile(candidate, 'utf8').catch(() => null);
+            if (html !== null) {
+              htmlPath = candidate;
+              break;
+            }
+          }
           if (html === null) {
             console.warn(
-              `[@pokedocs/plugin-agent-endpoints] no HTML found for ${doc.permalink} at ${htmlPath} — discovery link skipped`,
+              `[@pokedocs/plugin-agent-endpoints] no HTML found for ${doc.permalink} (tried ${candidates.join(', ')}) — discovery link skipped`,
             );
             continue;
           }

@@ -142,11 +142,24 @@ export function compileBranding(
 ): CompiledBranding {
   // Normalize through parse/format so ladders and CSS agree on casing,
   // and so an invalid brand color fails here with a pointed message.
-  const brand = toHex(parseHex(options.brandColor));
+  const input = options.brandColor;
+  const brand = toHex(
+    parseHex(typeof input === 'string' ? input : input.light),
+  );
   const light = deriveLadder(brand);
 
-  const darkTint = Math.max(minimumTintForContrast(brand), MIN_DARK_TINT);
-  const darkPrimary = tint(brand, darkTint);
+  // S1.4.3: an explicit dark-mode primary is respected as given — but the
+  // correct-by-construction promise holds: it is still lifted the minimum
+  // amount needed to read at AA on the dark background. A single brand
+  // color additionally gets the floor tint, so dark mode is never just
+  // the light primary reused.
+  const explicitDark =
+    typeof input === 'object' ? toHex(parseHex(input.dark)) : undefined;
+  const darkBase = explicitDark ?? brand;
+  const darkTint = explicitDark
+    ? minimumTintForContrast(explicitDark)
+    : Math.max(minimumTintForContrast(brand), MIN_DARK_TINT);
+  const darkPrimary = tint(darkBase, darkTint);
   const dark = deriveLadder(darkPrimary);
 
   const logo =
@@ -175,11 +188,14 @@ export function compileBranding(
   const css = `${lines.join('\n')}\n`;
 
   const darkContrast = contrastRatio(darkPrimary, INFIMA_DARK_BACKGROUND);
+  const darkOrigin = explicitDark
+    ? `explicit ${explicitDark}${darkTint > 0 ? ` + ${Math.round(darkTint * 100)}% white tint (AA lift)` : ''}`
+    : `brand + ${Math.round(darkTint * 100)}% white tint`;
   const report = [
-    `[@pokedocs/theme] branding compiled from ${brand}`,
+    `[@pokedocs/theme] branding compiled from ${brand}${explicitDark ? ` / dark ${explicitDark}` : ''}`,
     formatLadder('light', light),
     formatLadder('dark ', dark),
-    `  dark primary = brand + ${Math.round(darkTint * 100)}% white tint → ${darkContrast.toFixed(2)}:1 against ${INFIMA_DARK_BACKGROUND}`,
+    `  dark primary = ${darkOrigin} → ${darkContrast.toFixed(2)}:1 against ${INFIMA_DARK_BACKGROUND}`,
     ...(logo ? [`  logo: light ${logo.light}, dark ${logo.dark}`] : []),
     ...(favicon ? [`  favicon: ${favicon}`] : []),
     ...(options.font

@@ -7,8 +7,13 @@
  */
 
 export interface BrandingOptions {
-  /** Primary brand color (hex). Shade ladders for light/dark modes are derived from it. */
-  brandColor: string;
+  /**
+   * Primary brand color (hex). Shade ladders for light/dark modes are
+   * derived from it — or give explicit per-mode primaries when one color
+   * can't serve both (S1.4.3), e.g. a bright brand that fails contrast
+   * on white. An explicit dark primary is still AA-lifted when needed.
+   */
+  brandColor: string | { light: string; dark: string };
   /** Logo path, with optional dark-mode variant. */
   logo?: string | { light: string; dark: string };
   /** Favicon path. Defaults to the logo. */

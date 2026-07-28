@@ -18,7 +18,7 @@ const KNOWN_KEYS = [
 
 /** Expected shape + example per option, shown verbatim in errors. */
 const OPTION_HELP: Record<(typeof KNOWN_KEYS)[number], string> = {
-  branding: `expected { brandColor: string, logo?: string | { light, dark }, favicon?: string, font?: string, colorMode?: 'light' | 'dark' | 'system' }
+  branding: `expected { brandColor: string | { light, dark }, logo?: string | { light, dark }, favicon?: string, font?: string, colorMode?: 'light' | 'dark' | 'system' }
   Example:
     presets: [['@pokedocs/preset', { branding: { brandColor: '#D8232A', logo: 'img/logo.svg' } }]]`,
   mermaid: `expected a mermaid options object or false (it is on by default; there is no 'true')
@@ -141,10 +141,18 @@ export function validatePresetOptions(
     if (!isPlainObject(branding)) {
       problem('branding', `got ${show(branding)}`);
     } else {
-      if (typeof branding.brandColor !== 'string') {
+      const brandColor = branding.brandColor;
+      if (
+        typeof brandColor !== 'string' &&
+        !(
+          isPlainObject(brandColor) &&
+          typeof brandColor.light === 'string' &&
+          typeof brandColor.dark === 'string'
+        )
+      ) {
         problem(
           'branding.brandColor',
-          `expected a hex color string, got ${show(branding.brandColor)}`,
+          `expected a hex color string or { light, dark }, got ${show(brandColor)}`,
         );
       }
       const logo = branding.logo;

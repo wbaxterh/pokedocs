@@ -296,6 +296,9 @@ The flagship. Diagrams become dual human+agent artifacts, and diagram errors bec
 - **S1.4.2 — Dark mode correct by construction**
   *As P1, I want dark-mode shades derived with correct lightness direction automatically, so that I can't repeat the classic mistake of darkening the primary color for dark mode.*
   Acceptance: generated dark palette is measurably lighter than light-mode primary per Infima guidance; snapshot tests cover representative brand colors including very light and very dark brands.
+- **S1.4.3 — Per-mode brand colors**
+  *As P1 with a bright brand color that fails contrast on white (discovered migrating TrickBook's yellow), I want `brandColor` to accept explicit light/dark variants, so that each mode's ladder derives from the right primary instead of one color compromising both.*
+  Acceptance: `brandColor` accepts a string or `{ light, dark }`; explicit dark primaries are still contrast-lifted to WCAG AA against the dark background when needed; single-string behavior unchanged; validator covers the union.
 
 #### F1.5 Agent endpoints v1 (`@pokedocs/plugin-agent-endpoints`)
 - **S1.5.1 — llms.txt and llms-full.txt on every build**
