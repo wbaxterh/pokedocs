@@ -43,7 +43,11 @@ docusaurus.config.ts  single source of truth: branding, landing cards, navbar
 - The color theme comes entirely from `branding.brandColor` in
   `docusaurus.config.ts`. Never hand-write `--ifm-color-primary`
   variables in custom.css.
-- To exclude a page from a build, use `draft: true` frontmatter.
+- Every build also emits the agent surface: `/llms.txt` (index),
+  `/llms-full.txt` (full corpus), and a `.md` twin per page at the same
+  path — write good `description:` frontmatter, it feeds the index.
+- To exclude a page from the build, use `draft: true`; to keep a page in
+  the site but out of the agent surface, use `ingest: false`.
 
 ## Landing page
 

@@ -23,7 +23,7 @@ describe('S1.2.2 — config validation with human errors', () => {
           colorMode: 'system',
         },
         mermaid: { preserveSource: true },
-        agentEndpoints: false,
+        agentEndpoints: { markdownTwins: true, excludeField: 'ingest' },
         frontmatterSchema: false,
         search: { engine: 'local' },
         docs: { sidebarPath: './sidebars.ts' },
@@ -85,10 +85,20 @@ describe('S1.2.2 — config validation with human errors', () => {
     expect(pagefind).toContain('ADR-0002');
   });
 
-  it('rejects enabling not-yet-implemented features, pointing at the landing story', () => {
-    const message = failure({ agentEndpoints: {} });
-    expect(message).toContain('`agentEndpoints`');
-    expect(message).toContain('F1.5');
+  it('accepts agentEndpoints options and rejects bad shapes per-field', () => {
+    expect(() =>
+      validatePresetOptions({
+        agentEndpoints: { llmsTxt: true, excludeField: 'ingest' },
+      }),
+    ).not.toThrow();
+    const message = failure({ agentEndpoints: { llmsTxt: 'yes' } });
+    expect(message).toContain('invalid option `agentEndpoints.llmsTxt`');
+    expect(failure({ agentEndpoints: { excludeField: 7 } })).toContain(
+      '`agentEndpoints.excludeField`',
+    );
+  });
+
+  it('rejects enabling the not-yet-implemented frontmatterSchema, pointing at the landing story', () => {
     expect(failure({ frontmatterSchema: {} })).toContain('F2.2');
   });
 
