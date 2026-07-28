@@ -1,5 +1,17 @@
 # @pokedocs/preset
 
+## 0.2.0
+
+### Minor Changes
+
+- [#72](https://github.com/wbaxterh/pokedocs/pull/72) [`f6ed403`](https://github.com/wbaxterh/pokedocs/commit/f6ed4032426d9798b336c93249620095a3cc437c) Thanks [@wbaxterh](https://github.com/wbaxterh)! - Per-mode brand colors (S1.4.3, found migrating TrickBook's yellow brand): `brandColor` now accepts `{ light, dark }` for brands where one color can't serve both modes — the explicit dark primary is respected but still AA-lifted against the dark background when needed; single-string behavior is byte-identical to before. The preset validator covers the union. Also fixes discovery-link injection under `trailingSlash: false`, where Docusaurus emits flat `page.html` files instead of `page/index.html`.
+
+### Patch Changes
+
+- Updated dependencies [[`f6ed403`](https://github.com/wbaxterh/pokedocs/commit/f6ed4032426d9798b336c93249620095a3cc437c)]:
+  - @pokedocs/theme@0.2.0
+  - @pokedocs/plugin-agent-endpoints@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
