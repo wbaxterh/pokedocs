@@ -1,5 +1,13 @@
 # docs-site
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies [[`f6ed403`](https://github.com/wbaxterh/pokedocs/commit/f6ed4032426d9798b336c93249620095a3cc437c)]:
+  - @pokedocs/theme@0.2.0
+  - @pokedocs/preset@0.2.0
+
 ## 0.0.1
 
 ### Patch Changes
