@@ -1,38 +1,64 @@
 <p align="center">
-  <img src="brand/logo.svg" width="112" alt="PokeDocs lens logo">
+  <img src="brand/logo-badge.svg" width="96" alt="PokeDocs">
 </p>
 
 <h1 align="center">PokeDocs</h1>
 
-**Docs that humans love and agents can actually read — built in minutes, hosted anywhere.**
+```bash
+npx create-pokedocs my-docs
+```
 
-PokeDocs is an open-source, agent-native documentation framework built as a distribution on top of [Docusaurus](https://docusaurus.io). Everything a modern docs site needs, on by default:
+Docusaurus, with the parts you always end up building yourself already built. One preset entry turns everything on; the scaffold has no boilerplate to delete.
 
-- 🧜 **Diagram-native** — mermaid rendered to SVG at build time, source preserved for agents, syntax errors fail the build
-- 🎨 **Branded in one line** — `brandColor` + logo in config → a complete, contrast-checked theme
-- 🤖 **Agent-readable by default** — `llms.txt`, `llms-full.txt`, per-page `.md` twins, MCP-ready discovery — all static files
-- 🔁 **Drift-aware** — shipped CI that checks whether code changes need doc changes
-- 🔍 **Search that works** — local full-text search, zero signup
-- 🚀 **Host anywhere** — GitHub Pages, Vercel, Netlify, Docker/nginx — scaffolded, footgun-free
+**Docs: https://wbaxterh.github.io/pokedocs/** — built with PokeDocs, from this repo, on every merge.
 
-## Status
+## The parts Docusaurus doesn't ship
 
-📋 **Planning.** The build is guided by the [PRD](docs/prd/pokedocs-prd-v1.md) — start there. Milestones, features, and user stories from the PRD become this repo's GitHub issues.
+**Mermaid rendered at build time.** Diagrams arrive as inline SVG in the static HTML — visible with JavaScript disabled, no client-side render flash. The mermaid source stays in the page, so AI agents read your architecture diagram instead of skipping an opaque `<svg>`. A syntax error fails the build with file and line, which means no broken diagram ever reaches production.
 
-## Why
+**A complete theme from one hex code.**
 
-Documentation now has two audiences: humans and AI agents. Hosted platforms made agent-readability table stakes but lock you in; open-source frameworks haven't caught up. PokeDocs delivers the hosted-platform agent experience as pure static build artifacts — no vendor, no server, no lock-in. The full argument, with evidence, is in the [PRD](docs/prd/pokedocs-prd-v1.md).
+```ts
+branding: { brandColor: '#D8232A', logo: 'img/logo.svg' }
+```
 
-## Repo layout
+That compiles both Infima shade ladders, the favicon, and the font wiring. Dark mode is derived *lighter* than your brand color — the direction everyone gets wrong by hand — and contrast-checked to WCAG AA. Delete your `custom.css`.
 
-pnpm-workspace monorepo. `pnpm install && pnpm build` builds every package (TypeScript project references, topological order).
+**Your site is readable by agents, not just people.** Every build emits `llms.txt`, `llms-full.txt`, and a markdown twin beside every page, with `<link rel="alternate">` discovery on every page. Don't take our word for it:
+
+```bash
+curl https://wbaxterh.github.io/pokedocs/llms.txt
+curl https://wbaxterh.github.io/pokedocs/architecture.md
+```
+
+**Search that works on day one.** Local full-text index built at build time — no Algolia application, no external service, identical behavior in dev and prod, works offline.
+
+**Deploys are generated, not researched.** `pokedocs deploy init github-pages` writes the Pages workflow this repo deploys with; `pokedocs deploy init docker` writes a multi-stage Dockerfile behind non-root nginx, `try_files` derived from your `baseUrl`. And the classic shipped-with-`url: localhost` bug is closed: a production build carrying a placeholder URL warns loudly, and `POKEDOCS_STRICT_URL=true` fails it.
+
+**Config errors written for humans.**
+
+```
+unknown option `brandign` — did you mean `branding`?
+```
+
+Every option is validated at build start, with the expected shape and a copy-pasteable example in the error.
+
+**A scaffold agents can work in.** `create-pokedocs` generates `AGENTS.md`/`CLAUDE.md` encoding the site's authoring conventions — frontmatter, sidebar rules, mermaid guidance — so agent-written docs are right the first time.
+
+## Not a fork
+
+PokeDocs is a distribution: `@pokedocs/preset` wraps the standard classic preset and tracks upstream minors. Docusaurus's own escape hatches — swizzling, plugins, themeConfig — all still work, and upstream improvements arrive on schedule. [Architecture](https://wbaxterh.github.io/pokedocs/architecture/) has the details.
+
+## Development
+
+pnpm-workspace monorepo. `pnpm install && pnpm build` builds every package; `pnpm test` and the [contributing guide](https://wbaxterh.github.io/pokedocs/contributing/) cover the rest. The docs site in `docs-site/` is the dogfood — its config is one preset entry, and CI builds a freshly scaffolded site on every commit.
 
 ```
 brand/                              logo SVGs (lens mark + badge)
 docs/prd/                           PRD source (markdown) + PDF pipeline
 packages/
   create-pokedocs/                  scaffolder — docs-only site in one command
-  pokedocs/                         CLI — check, export, deploy init, mcp
+  pokedocs/                         CLI — deploy init today; check, export, mcp with their milestones
   preset/                           @pokedocs/preset — everything wired by default
   theme/                            @pokedocs/theme — branding compiler, reader components
   plugin-mermaid-ssr/               build-time mermaid → inline SVG, source preserved
