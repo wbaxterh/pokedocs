@@ -15,6 +15,12 @@
 export const COMMANDS = ['check', 'export', 'deploy', 'mcp'] as const;
 export type PokedocsCommand = (typeof COMMANDS)[number];
 
+export { type CheckFormat, formatSummary } from './check/format.js';
+export {
+  type CheckOptions,
+  runCheck,
+} from './check/index.js';
+export type { CheckSummary, Finding, Severity } from './check/types.js';
 export {
   DEPLOY_TARGETS,
   DeployInitError,

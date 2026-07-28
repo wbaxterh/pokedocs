@@ -27,6 +27,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm build
       - run: pnpm test
+      # F2.1 dogfood: lint our own docs for what the build won't catch
+      - run: node packages/pokedocs/dist/cli.js check docs-site --format github
       - run: pnpm --filter docs-site build
       - run: pnpm --filter docs-site e2e
       # S1.1.1 acceptance: a scaffolded site must build clean, end to end
