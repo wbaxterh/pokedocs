@@ -14,3 +14,21 @@
 
 export const COMMANDS = ['check', 'export', 'deploy', 'mcp'] as const;
 export type PokedocsCommand = (typeof COMMANDS)[number];
+
+export {
+  DEPLOY_TARGETS,
+  DeployInitError,
+  type DeployInitFlags,
+  type DeployInitResult,
+  runDeployInit,
+  targetList,
+} from './deploy/init.js';
+export type {
+  DeployInitContext,
+  DeployTarget,
+  EmittedFile,
+} from './deploy/targets.js';
+export {
+  normalizeBaseUrl,
+  parseBaseUrl,
+} from './deploy/targets.js';

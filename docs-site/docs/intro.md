@@ -14,7 +14,7 @@ PokeDocs is an open-source, agent-native documentation framework built as a **di
 2. **[Branded in one line](./branding.md)** — `brandColor` + logo in config → a complete, contrast-checked theme
 3. **Drift-aware** — shipped CI that checks whether code changes need doc changes
 4. **[Agent-readable by default](./agent-endpoints.md)** — `llms.txt`, `llms-full.txt`, per-page `.md` twins, MCP-ready discovery, all as static files
-5. **Host anywhere** — GitHub Pages, Vercel, Netlify, Docker/nginx — no vendor, no server, no lock-in
+5. **[Host anywhere](./hosting.md)** — GitHub Pages, Vercel, Netlify, Docker/nginx — no vendor, no server, no lock-in
 
 ## Why
 

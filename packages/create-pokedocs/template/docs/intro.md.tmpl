@@ -43,4 +43,7 @@ Everything brand-specific lives in `docusaurus.config.ts`:
 - `branding.brandColor` — the whole color theme, both light and dark
   modes, is derived from this one value.
 - `customFields.landing.cards` — the cards on the landing page.
-- `url` / `baseUrl` — set these when you know where the site deploys.
+- `url` / `baseUrl` — set these when you know where the site deploys, or
+  export `POKEDOCS_URL` / `POKEDOCS_BASE_URL` per environment. A
+  production build with a placeholder url warns; `POKEDOCS_STRICT_URL=true`
+  makes it fail.
