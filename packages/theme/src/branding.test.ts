@@ -158,6 +158,37 @@ describe('S1.4.2 — dark mode correct by construction', () => {
     );
   });
 
+  // S1.4.3 — per-mode brand colors (the TrickBook case: dark gold for
+  // light mode, bright yellow for dark mode).
+  it('uses an explicit AA-passing dark primary exactly as given', () => {
+    const { light, dark, report } = compileBranding({
+      brandColor: { light: '#806d00', dark: '#fcf150' },
+    });
+    expect(light.primary).toBe('#806d00');
+    expect(dark.primary).toBe('#fcf150');
+    expect(report).toContain('explicit #fcf150');
+    expect(report).not.toContain('AA lift');
+  });
+
+  it('lifts an explicit dark primary that fails AA, by the minimum amount', () => {
+    const { dark, report } = compileBranding({
+      brandColor: { light: '#806d00', dark: '#1f1f1f' },
+    });
+    expect(
+      contrastRatio(dark.primary, INFIMA_DARK_BACKGROUND),
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(dark.primary, INFIMA_DARK_BACKGROUND)).toBeLessThan(5);
+    expect(report).toContain('AA lift');
+  });
+
+  it('derives per-mode ladders independently and keeps css structure', () => {
+    const { css } = compileBranding({
+      brandColor: { light: '#806d00', dark: '#fcf150' },
+    });
+    expect(css).toContain('--ifm-color-primary: #806d00;');
+    expect(css).toContain('--ifm-color-primary: #fcf150;');
+  });
+
   it.each(REPRESENTATIVE_BRANDS)('snapshot: computed theme for %s', (brand) => {
     const { css, light, dark } = compileBranding({ brandColor: brand });
     expect({ light, dark, css }).toMatchSnapshot();

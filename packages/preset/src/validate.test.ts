@@ -68,6 +68,17 @@ describe('S1.2.2 — config validation with human errors', () => {
     expect(message).toContain('expected a hex color string');
   });
 
+  it('accepts per-mode brandColor and rejects a partial object (S1.4.3)', () => {
+    expect(() =>
+      validatePresetOptions({
+        branding: { brandColor: { light: '#806d00', dark: '#fcf150' } },
+      }),
+    ).not.toThrow();
+    const message = failure({ branding: { brandColor: { light: '#806d00' } } });
+    expect(message).toContain('invalid option `branding.brandColor`');
+    expect(message).toContain('{ light, dark }');
+  });
+
   it('rejects a bad colorMode with the allowed values', () => {
     const message = failure({
       branding: { brandColor: '#fff', colorMode: 'auto' },
