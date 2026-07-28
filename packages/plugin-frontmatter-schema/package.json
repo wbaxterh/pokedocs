@@ -1,6 +1,6 @@
 {
   "name": "@pokedocs/plugin-frontmatter-schema",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Declarative frontmatter schemas for Docusaurus, validated at build/check time — metadata contracts enforced by the build, not a contributing guide",
   "license": "MIT",
   "repository": {
