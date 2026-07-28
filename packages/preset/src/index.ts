@@ -21,8 +21,10 @@ import type { MermaidSsrOptions } from '@pokedocs/plugin-mermaid-ssr';
 import { rehypeMermaidSsr } from '@pokedocs/plugin-mermaid-ssr';
 import type { BrandingOptions } from '@pokedocs/theme';
 import { compileBranding } from '@pokedocs/theme';
+import { checkSiteUrl } from './url-guard.js';
 import { validatePresetOptions } from './validate.js';
 
+export { checkSiteUrl, isPlaceholderUrl } from './url-guard.js';
 export { PokedocsConfigError, validatePresetOptions } from './validate.js';
 
 /** Docs-plugin passthrough: everything the classic preset accepts except `false` — PokeDocs is docs-first. */
@@ -63,6 +65,14 @@ export default function pokedocsPreset(
   options: PokedocsPresetOptions = {},
 ): Preset {
   validatePresetOptions(options);
+
+  // S1.7.3: a production build with a localhost/placeholder url ships
+  // canonical URLs and llms.txt entries pointing nowhere. Warn loudly;
+  // POKEDOCS_STRICT_URL=true makes it fail the build.
+  checkSiteUrl(context.siteConfig.url, {
+    isProduction: process.env.NODE_ENV === 'production',
+    strict: ['true', '1'].includes(process.env.POKEDOCS_STRICT_URL ?? ''),
+  });
 
   const branding = options.branding
     ? compileBranding(options.branding)

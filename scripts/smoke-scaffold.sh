@@ -44,8 +44,18 @@ echo "==> npm install"
 npm install --no-audit --no-fund --loglevel=error
 echo "==> ensuring chromium for build-time mermaid"
 npx playwright install chromium
-echo "==> building the scaffolded site"
-npm run build
+
+echo "==> building with the placeholder url (must warn — S1.7.3)"
+npm run build 2>&1 | tee "$WORK/build-default.log"
+grep -q "placeholder site url" "$WORK/build-default.log" || { echo "FAIL: baseUrl footgun warning missing"; exit 1; }
+
+echo "==> strict mode with the placeholder url (must fail — S1.7.3)"
+if POKEDOCS_STRICT_URL=true npm run build >/dev/null 2>&1; then
+  echo "FAIL: strict mode accepted a placeholder url"; exit 1
+fi
+
+echo "==> strict build with the scaffolded env override (must pass — S1.7.3)"
+POKEDOCS_STRICT_URL=true POKEDOCS_URL=https://docs.smoke.test npm run build
 
 echo "==> verifying the build carries the preset capabilities"
 grep -q "ifm-color-primary" build/index.html || { echo "FAIL: branding CSS missing"; exit 1; }

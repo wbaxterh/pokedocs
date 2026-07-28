@@ -6,8 +6,11 @@ const config: Config = {
   title: '{{SITE_NAME}}',
   tagline: '{{TAGLINE}}',
 
-  url: '{{URL}}',
-  baseUrl: '{{BASE_URL}}',
+  // Overridable per-environment; a production build with a placeholder
+  // url warns (POKEDOCS_STRICT_URL=true makes it an error). `||` on
+  // purpose: an empty env var must fall back too.
+  url: process.env.POKEDOCS_URL || '{{URL}}',
+  baseUrl: process.env.POKEDOCS_BASE_URL || '{{BASE_URL}}',
 
   onBrokenLinks: 'throw',
 

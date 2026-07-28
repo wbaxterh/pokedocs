@@ -165,8 +165,12 @@ describe('S1.1.3 — interactive setup (non-interactive paths)', () => {
       path.join(target, 'docusaurus.config.ts'),
       'utf8',
     );
-    expect(config).toContain("url: 'https://wbaxterh.github.io'");
-    expect(config).toContain("baseUrl: '/my-docs/'");
+    expect(config).toContain(
+      "url: process.env.POKEDOCS_URL || 'https://wbaxterh.github.io'",
+    );
+    expect(config).toContain(
+      "baseUrl: process.env.POKEDOCS_BASE_URL || '/my-docs/'",
+    );
     const workflow = await readFile(
       path.join(target, '.github/workflows/deploy.yml'),
       'utf8',
