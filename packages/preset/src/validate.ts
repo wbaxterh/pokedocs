@@ -24,9 +24,9 @@ const OPTION_HELP: Record<(typeof KNOWN_KEYS)[number], string> = {
   mermaid: `expected a mermaid options object or false (it is on by default; there is no 'true')
   Example:
     presets: [['@pokedocs/preset', { mermaid: { themeVariables: { primaryColor: '#D8232A' } } }]]`,
-  agentEndpoints: `expected an options object or false
+  agentEndpoints: `expected { llmsTxt?, markdownTwins?, discoveryLinks?: boolean, excludeField?: string } or false
   Example:
-    presets: [['@pokedocs/preset', { agentEndpoints: false }]]`,
+    presets: [['@pokedocs/preset', { agentEndpoints: { excludeField: 'ingest' } }]]`,
   frontmatterSchema: `expected an options object or false
   Example:
     presets: [['@pokedocs/preset', { frontmatterSchema: false }]]`,
@@ -175,18 +175,37 @@ export function validatePresetOptions(
     problem('mermaid', `got ${show(mermaid)}`);
   }
 
-  for (const [key, value, story] of [
-    ['agentEndpoints', agentEndpoints, 'F1.5 (S1.5.1)'],
-    ['frontmatterSchema', frontmatterSchema, 'F2.2 (S2.2.1)'],
-  ] as const) {
-    if (value === undefined || value === false) {
-      continue;
+  if (agentEndpoints !== undefined && agentEndpoints !== false) {
+    if (!isPlainObject(agentEndpoints)) {
+      problem('agentEndpoints', `got ${show(agentEndpoints)}`);
+    } else {
+      for (const flag of ['llmsTxt', 'markdownTwins', 'discoveryLinks']) {
+        const value = agentEndpoints[flag];
+        if (value !== undefined && typeof value !== 'boolean') {
+          problem(
+            `agentEndpoints.${flag}`,
+            `expected a boolean, got ${show(value)}`,
+          );
+        }
+      }
+      if (
+        agentEndpoints.excludeField !== undefined &&
+        typeof agentEndpoints.excludeField !== 'string'
+      ) {
+        problem(
+          'agentEndpoints.excludeField',
+          `expected a frontmatter field name, got ${show(agentEndpoints.excludeField)}`,
+        );
+      }
     }
-    if (!isPlainObject(value)) {
-      problem(key, `got ${show(value)}`);
+  }
+
+  if (frontmatterSchema !== undefined && frontmatterSchema !== false) {
+    if (!isPlainObject(frontmatterSchema)) {
+      problem('frontmatterSchema', `got ${show(frontmatterSchema)}`);
     } else {
       problems.push(
-        `option \`${key}\` is accepted but not implemented yet — it lands with ${story} and will then be on by default. Remove the option for now (or keep \`${key}: false\` to opt out ahead of time).`,
+        'option `frontmatterSchema` is accepted but not implemented yet — it lands with F2.2 (S2.2.1) and will then be on by default. Remove the option for now (or keep `frontmatterSchema: false` to opt out ahead of time).',
       );
     }
   }

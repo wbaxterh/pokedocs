@@ -8,8 +8,14 @@
 
 import type { Options as ClassicOptions } from '@docusaurus/preset-classic';
 import classicPreset from '@docusaurus/preset-classic';
-import type { LoadContext, Preset } from '@docusaurus/types';
+import type {
+  LoadContext,
+  PluginConfig,
+  PluginModule,
+  Preset,
+} from '@docusaurus/types';
 import type { AgentEndpointsOptions } from '@pokedocs/plugin-agent-endpoints';
+import pluginAgentEndpoints from '@pokedocs/plugin-agent-endpoints';
 import type { FrontmatterSchemaOptions } from '@pokedocs/plugin-frontmatter-schema';
 import type { MermaidSsrOptions } from '@pokedocs/plugin-mermaid-ssr';
 import { rehypeMermaidSsr } from '@pokedocs/plugin-mermaid-ssr';
@@ -96,6 +102,14 @@ export default function pokedocsPreset(
   }
 
   const plugins = [...(classic.plugins ?? [])];
+  if (options.agentEndpoints !== false) {
+    // Pillar 4, on by default: llms.txt, .md twins, discovery links (F1.5).
+    const entry: PluginConfig = [
+      pluginAgentEndpoints as PluginModule,
+      { ...options.agentEndpoints },
+    ];
+    plugins.push(entry);
+  }
   if (branding) {
     const { css, favicon, fontStylesheetUrl } = branding;
     const siteHasFavicon = context.siteConfig.favicon !== undefined;

@@ -91,6 +91,44 @@ test('mermaid diagram is visible with JavaScript disabled', async ({ browser }) 
   await context.close();
 });
 
+test('llms.txt indexes the site for agents (S1.5.1)', async ({ page }) => {
+  const res = await page.request.get('./llms.txt');
+  expect(res.status()).toBe(200);
+  const text = await res.text();
+  expect(text).toContain('# PokeDocs');
+  expect(text).toMatch(/^> /m); // llmstxt.org summary blockquote
+  expect(text).toMatch(/- \[Architecture\]\(https:\/\/.+\/architecture\.md\): /);
+});
+
+test('llms-full.txt carries the whole corpus with mermaid source (S1.5.1)', async ({
+  page,
+}) => {
+  const text = await (await page.request.get('./llms-full.txt')).text();
+  expect(text).toContain('# Architecture');
+  expect(text).toContain('```mermaid');
+  expect(text).toContain('graph TB');
+});
+
+test('every doc page has a markdown twin, mermaid intact (S1.5.2)', async ({
+  page,
+}) => {
+  const md = await (await page.request.get('./architecture.md')).text();
+  expect(md.startsWith('# Architecture')).toBe(true);
+  expect(md).toContain('graph TB');
+  expect(md).not.toContain('sidebar_position'); // frontmatter stripped
+  // The root doc (slug /) twins as /index.md.
+  const root = await (await page.request.get('./index.md')).text();
+  expect(root).toContain('# PokeDocs');
+});
+
+test('discovery links point at the agent surface (S1.5.3)', async ({ page }) => {
+  const html = await (await page.request.get('./architecture')).text();
+  expect(html).toContain(
+    '<link rel="alternate" type="text/markdown" href="/pokedocs/architecture.md"',
+  );
+  expect(html).toMatch(/<link[^>]+href="?\/pokedocs\/llms\.txt/);
+});
+
 test('color mode toggle switches themes', async ({ page }) => {
   await page.goto('.');
   const html = page.locator('html');

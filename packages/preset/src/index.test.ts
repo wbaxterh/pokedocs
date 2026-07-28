@@ -94,6 +94,19 @@ describe('S1.2.1 — one preset, fully wired', () => {
     ).toBe(false);
   });
 
+  it('activates agent endpoints by default and drops them on false (F1.5)', () => {
+    const hasAgentEndpoints = (opts: Parameters<typeof pokedocsPreset>[1]) =>
+      pokedocsPreset(stubContext(), opts).plugins?.some(
+        (p) =>
+          Array.isArray(p) &&
+          typeof p[0] === 'function' &&
+          (p[0] as (c: unknown, o: unknown) => Plugin)(stubContext(), p[1])
+            .name === '@pokedocs/plugin-agent-endpoints',
+      );
+    expect(hasAgentEndpoints({})).toBe(true);
+    expect(hasAgentEndpoints({ agentEndpoints: false })).toBe(false);
+  });
+
   it('injects branding CSS and a favicon link when the site sets no favicon', () => {
     const tags = brandingHeadTags({
       branding: { brandColor: '#D8232A', logo: 'img/logo-badge.svg' },

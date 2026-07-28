@@ -1,5 +1,6 @@
 ---
 sidebar_position: 4
+slug: /local-search
 description: Full-text search works out of the box with zero signup — a local index built at build time, served statically, active in dev and prod. Algolia remains available as an opt-in upgrade.
 ---
 
