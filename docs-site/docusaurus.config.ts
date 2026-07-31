@@ -42,6 +42,18 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/wbaxterh/pokedocs/tree/main/docs-site/',
         },
+        // F2.2 dogfood: the "every page carries a description" convention
+        // is now a build-enforced contract, not a request.
+        frontmatterSchema: {
+          schemas: [
+            {
+              include: '**',
+              fields: {
+                description: { type: 'string', required: true },
+              },
+            },
+          ],
+        },
         theme: {
           customCss: './src/css/custom.css',
         },

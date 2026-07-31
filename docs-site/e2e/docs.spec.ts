@@ -109,6 +109,20 @@ test('llms-full.txt carries the whole corpus with mermaid source (S1.5.1)', asyn
   expect(text).toContain('graph TB');
 });
 
+test('pages.json is the stable machine-readable index (S2.2.2)', async ({
+  page,
+}) => {
+  const res = await page.request.get('./pages.json');
+  expect(res.status()).toBe(200);
+  const index = await res.json();
+  expect(index.site.title).toBe('PokeDocs');
+  const architecture = index.pages.find((p: { title: string }) =>
+    p.title.includes('Architecture'),
+  );
+  expect(architecture.description).toBeTruthy();
+  expect(architecture.markdownUrl).toMatch(/\/architecture\.md$/);
+});
+
 test('every doc page has a markdown twin, mermaid intact (S1.5.2)', async ({
   page,
 }) => {

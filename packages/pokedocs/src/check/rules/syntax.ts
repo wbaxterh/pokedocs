@@ -148,8 +148,10 @@ export const mermaidUnquotedParens: SyntaxRule = ({ file, lines, regions }) => {
     if (regions[i] !== 'mermaid') {
       continue;
     }
-    // Node text: A[label (with parens)] — quoted form is A["label (with parens)"]
-    const node = lines[i].match(/\[([^\]"]*\([^\]"]*)\]/);
+    // Node text: A[label (with parens)] — quoted form is A["label (with parens)"].
+    // The first char after [ must not be ( — that's the valid cylinder
+    // shape A[(Database)], not an unquoted label.
+    const node = lines[i].match(/\[([^(\]"][^\]"]*\([^\]"]*)\]/);
     // Edge label: -- label (x) --> or |label (x)|
     const edge = lines[i].match(/\|([^|"]*\([^|"]*)\|/);
     const hit = node ?? edge;

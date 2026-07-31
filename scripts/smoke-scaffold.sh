@@ -63,6 +63,7 @@ test -f build/search-index.json || { echo "FAIL: search index missing"; exit 1; 
 grep -q "data-mermaid-source" build/authoring/index.html || { echo "FAIL: mermaid SSR missing"; exit 1; }
 test -f build/llms.txt || { echo "FAIL: llms.txt missing"; exit 1; }
 test -f build/llms-full.txt || { echo "FAIL: llms-full.txt missing"; exit 1; }
+test -f build/pages.json || { echo "FAIL: pages.json missing"; exit 1; }
 grep -q "graph LR" build/authoring.md || { echo "FAIL: markdown twin missing or lost mermaid source"; exit 1; }
 grep -q 'rel="alternate" type="text/markdown"' build/intro/index.html || { echo "FAIL: discovery links missing"; exit 1; }
 echo "OK: scaffolded site builds clean with branding, search, mermaid SSR, and agent endpoints"

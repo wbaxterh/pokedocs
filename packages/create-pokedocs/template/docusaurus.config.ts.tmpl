@@ -50,6 +50,18 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
         },
+        // Every page needs a description — agents and search rely on it.
+        // This is the contract AGENTS.md documents, enforced by the build.
+        frontmatterSchema: {
+          schemas: [
+            {
+              include: '**',
+              fields: {
+                description: { type: 'string', required: true },
+              },
+            },
+          ],
+        },
         theme: {
           customCss: './src/css/custom.css',
         },

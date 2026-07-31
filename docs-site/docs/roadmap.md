@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 10
 description: PokeDocs roadmap — six milestones from foundation to v1.0, tracked as GitHub milestones and story issues.
 ---
 

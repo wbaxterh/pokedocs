@@ -20,6 +20,12 @@ as plain static files that work on any host. This site's own surface:
   [`/architecture.md`](pathname:///pokedocs/architecture.md). Agents
   fetch clean markdown instead of scraping hydrated HTML.
 
+- **[`/pages.json`](pathname:///pokedocs/pages.json)** — the minimal
+  machine-readable page index: title, description, canonical URL, and
+  markdown URL per page, plus any
+  [schema-indexed metadata](./metadata.md). A stable contract for
+  retrieval pipelines.
+
 ## Discovery
 
 Any entry URL leads to the rest of the surface: every page's HTML head
