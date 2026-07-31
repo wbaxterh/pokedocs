@@ -79,6 +79,8 @@ curl https://wbaxterh.github.io/pokedocs/architecture.md
 
 **Deploys are generated, not researched.** `pokedocs deploy init github-pages` writes the Pages workflow this repo deploys with; `pokedocs deploy init docker` writes a multi-stage Dockerfile behind non-root nginx, `try_files` derived from your `baseUrl`. And the classic shipped-with-`url: localhost` bug is closed: a production build carrying a placeholder URL warns loudly, and `POKEDOCS_STRICT_URL=true` fails it.
 
+**A linter for what a green build won't catch.** `npx pokedocs check` finds the admonition titles rendering as body text, unclosed fences, MDX compile hazards, orphaned pages, and dangling sidebar entries — in seconds, no build. On its first run against two production sites that had been building green for months, it found **37 live defects**. `--format github` puts findings inline on PRs.
+
 **Config errors written for humans.**
 
 ```
