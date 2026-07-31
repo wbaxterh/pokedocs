@@ -1,5 +1,12 @@
 # docs-site
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`864867d`](https://github.com/wbaxterh/pokedocs/commit/864867d180a1ed358ef90a7a9ca01a18c4098975)]:
+  - @pokedocs/preset@0.3.0
+
 ## 0.0.2
 
 ### Patch Changes
