@@ -92,7 +92,11 @@ importers:
         specifier: 3.10.2
         version: 3.10.2(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.19))(html-minifier-terser@7.2.0)(postcss@8.5.19)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
 
-  packages/plugin-frontmatter-schema: {}
+  packages/plugin-frontmatter-schema:
+    devDependencies:
+      '@docusaurus/types':
+        specifier: 3.10.2
+        version: 3.10.2(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.19))(html-minifier-terser@7.2.0)(postcss@8.5.19)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
 
   packages/plugin-mermaid-ssr:
     dependencies:

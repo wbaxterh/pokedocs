@@ -24,7 +24,14 @@ describe('S1.2.2 — config validation with human errors', () => {
         },
         mermaid: { preserveSource: true },
         agentEndpoints: { markdownTwins: true, excludeField: 'ingest' },
-        frontmatterSchema: false,
+        frontmatterSchema: {
+          schemas: [
+            {
+              include: '**',
+              fields: { description: { type: 'string', required: true } },
+            },
+          ],
+        },
         search: { engine: 'local' },
         docs: { sidebarPath: './sidebars.ts' },
         theme: { customCss: './custom.css' },
@@ -109,8 +116,39 @@ describe('S1.2.2 — config validation with human errors', () => {
     );
   });
 
-  it('rejects enabling the not-yet-implemented frontmatterSchema, pointing at the landing story', () => {
-    expect(failure({ frontmatterSchema: {} })).toContain('F2.2');
+  it('accepts real frontmatter schemas and rejects bad shapes per-field (S2.2.1)', () => {
+    expect(() =>
+      validatePresetOptions({
+        frontmatterSchema: {
+          schemas: [
+            {
+              include: 'adr/**',
+              fields: {
+                status: { type: 'enum', values: ['accepted'], index: true },
+                description: { type: 'string', required: true },
+              },
+            },
+          ],
+        },
+      }),
+    ).not.toThrow();
+    expect(failure({ frontmatterSchema: { schemas: 'nope' } })).toContain(
+      '`frontmatterSchema.schemas`',
+    );
+    expect(
+      failure({
+        frontmatterSchema: {
+          schemas: [{ include: '**', fields: { x: { type: 'uuid' } } }],
+        },
+      }),
+    ).toContain('frontmatterSchema.schemas[0].fields.x');
+    expect(
+      failure({
+        frontmatterSchema: {
+          schemas: [{ include: '**', fields: { x: { type: 'enum' } } }],
+        },
+      }),
+    ).toContain('enum fields need a values array');
   });
 
   it('reports every problem at once', () => {

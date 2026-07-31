@@ -94,6 +94,42 @@ describe('S1.2.1 — one preset, fully wired', () => {
     ).toBe(false);
   });
 
+  it('activates frontmatter schemas by default and derives indexFields (F2.2)', () => {
+    const { plugins } = pokedocsPreset(stubContext(), {
+      frontmatterSchema: {
+        schemas: [
+          {
+            include: 'adr/**',
+            fields: {
+              status: {
+                type: 'enum',
+                values: ['accepted'],
+                index: true,
+                required: true,
+              },
+            },
+          },
+        ],
+      },
+    });
+    const schemaEntry = plugins?.find(
+      (p) =>
+        Array.isArray(p) &&
+        typeof p[0] === 'function' &&
+        (p[0] as (c: unknown, o: unknown) => Plugin)(stubContext(), p[1])
+          .name === '@pokedocs/plugin-frontmatter-schema',
+    );
+    expect(schemaEntry).toBeDefined();
+    const endpointsEntry = plugins?.find(
+      (p) =>
+        Array.isArray(p) &&
+        typeof p[0] === 'function' &&
+        (p[0] as (c: unknown, o: unknown) => Plugin)(stubContext(), p[1])
+          .name === '@pokedocs/plugin-agent-endpoints',
+    ) as [unknown, { indexFields?: string[] }];
+    expect(endpointsEntry[1].indexFields).toEqual(['status']);
+  });
+
   it('activates agent endpoints by default and drops them on false (F1.5)', () => {
     const hasAgentEndpoints = (opts: Parameters<typeof pokedocsPreset>[1]) =>
       pokedocsPreset(stubContext(), opts).plugins?.some(

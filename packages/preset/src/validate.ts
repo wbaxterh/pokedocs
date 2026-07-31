@@ -27,9 +27,9 @@ const OPTION_HELP: Record<(typeof KNOWN_KEYS)[number], string> = {
   agentEndpoints: `expected { llmsTxt?, markdownTwins?, discoveryLinks?: boolean, excludeField?: string } or false
   Example:
     presets: [['@pokedocs/preset', { agentEndpoints: { excludeField: 'ingest' } }]]`,
-  frontmatterSchema: `expected an options object or false
+  frontmatterSchema: `expected { schemas: [{ include: glob, fields: { name: { type, required?, values?, index? } } }] } or false
   Example:
-    presets: [['@pokedocs/preset', { frontmatterSchema: false }]]`,
+    presets: [['@pokedocs/preset', { frontmatterSchema: { schemas: [{ include: '**', fields: { description: { type: 'string', required: true } } }] } }]]`,
   search: `expected true, false, or { engine: 'local' | 'pagefind' }
   Example:
     presets: [['@pokedocs/preset', { search: { engine: 'local' } }]]`,
@@ -211,10 +211,47 @@ export function validatePresetOptions(
   if (frontmatterSchema !== undefined && frontmatterSchema !== false) {
     if (!isPlainObject(frontmatterSchema)) {
       problem('frontmatterSchema', `got ${show(frontmatterSchema)}`);
-    } else {
-      problems.push(
-        'option `frontmatterSchema` is accepted but not implemented yet — it lands with F2.2 (S2.2.1) and will then be on by default. Remove the option for now (or keep `frontmatterSchema: false` to opt out ahead of time).',
+    } else if (
+      frontmatterSchema.schemas !== undefined &&
+      !Array.isArray(frontmatterSchema.schemas)
+    ) {
+      problem(
+        'frontmatterSchema.schemas',
+        `expected an array of schemas, got ${show(frontmatterSchema.schemas)}`,
       );
+    } else {
+      const FIELD_TYPES = ['string', 'number', 'boolean', 'date', 'enum'];
+      for (const [i, schema] of (
+        (frontmatterSchema.schemas ?? []) as unknown[]
+      ).entries()) {
+        if (
+          !isPlainObject(schema) ||
+          typeof schema.include !== 'string' ||
+          !isPlainObject(schema.fields)
+        ) {
+          problem(
+            `frontmatterSchema.schemas[${i}]`,
+            `expected { include: string, fields: object }, got ${show(schema)}`,
+          );
+          continue;
+        }
+        for (const [name, field] of Object.entries(schema.fields)) {
+          if (
+            !isPlainObject(field) ||
+            !FIELD_TYPES.includes(field.type as string)
+          ) {
+            problem(
+              `frontmatterSchema.schemas[${i}].fields.${name}`,
+              `expected { type: ${FIELD_TYPES.join(' | ')} }, got ${show(field)}`,
+            );
+          } else if (field.type === 'enum' && !Array.isArray(field.values)) {
+            problem(
+              `frontmatterSchema.schemas[${i}].fields.${name}.values`,
+              `enum fields need a values array, got ${show(field.values)}`,
+            );
+          }
+        }
+      }
     }
   }
 

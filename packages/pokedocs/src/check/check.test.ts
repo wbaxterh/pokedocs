@@ -99,6 +99,14 @@ describe('S2.1.1 — mermaid labels', () => {
     expect(findings[0].suggestion).toContain('["Server (main)"]');
   });
 
+  it('is silent for the [(database)] cylinder shape — valid mermaid, not a label', () => {
+    // False positive found running check against helio-docs and TrickBook:
+    // TS[(Amazon Timestream<br/>Last 24 hours)] is the cylinder shape.
+    expect(
+      scan('```mermaid\ngraph TD\n  TS[(Amazon Timestream<br/>DB)] --> B\n```'),
+    ).toHaveLength(0);
+  });
+
   it('is silent for quoted labels and parens outside mermaid', () => {
     expect(
       scan('```mermaid\ngraph TD\n  A["Server (main)"] --> B\n```'),

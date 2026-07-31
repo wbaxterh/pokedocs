@@ -12,6 +12,8 @@ export interface AgentDoc {
   permalink: string;
   /** Raw markdown source of the page. */
   markdown: string;
+  /** Validated custom frontmatter selected for the agent surface (S2.2.2). */
+  fields?: Record<string, string>;
 }
 
 export interface SiteInfo {
@@ -70,9 +72,37 @@ export function llmsTxt(site: SiteInfo, docs: AgentDoc[]): string {
   for (const doc of docs) {
     const url = `${site.url}${twinHref(doc.permalink, site.baseUrl)}`;
     const description = doc.description ? `: ${doc.description}` : '';
-    lines.push(`- [${doc.title}](${url})${description}`);
+    lines.push(`- [${doc.title}](${url})${description}${fieldsSuffix(doc)}`);
   }
   return `${lines.join('\n')}\n`;
+}
+
+/** Validated metadata rendered into an entry: " (owner: platform; status: accepted)". */
+function fieldsSuffix(doc: AgentDoc): string {
+  const entries = Object.entries(doc.fields ?? {});
+  if (entries.length === 0) {
+    return '';
+  }
+  return ` (${entries.map(([k, v]) => `${k}: ${v}`).join('; ')})`;
+}
+
+/**
+ * /pages.json (S2.2.2): the minimal machine-readable page index — the
+ * stable seed contract that the M3 discovery index extends. One entry
+ * per page: title, description, canonical url, markdown twin url, and
+ * any schema-validated fields marked `index: true`.
+ */
+export function pagesJson(site: SiteInfo, docs: AgentDoc[]): string {
+  const pages = docs.map((doc) => ({
+    title: doc.title,
+    description: doc.description,
+    url: `${site.url}${doc.permalink}`,
+    markdownUrl: `${site.url}${twinHref(doc.permalink, site.baseUrl)}`,
+    ...(doc.fields && Object.keys(doc.fields).length > 0
+      ? { fields: doc.fields }
+      : {}),
+  }));
+  return `${JSON.stringify({ site: { title: site.title, url: site.url }, pages }, null, 2)}\n`;
 }
 
 /**

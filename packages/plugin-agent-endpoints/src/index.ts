@@ -16,6 +16,7 @@ import {
   injectIntoHead,
   llmsFullTxt,
   llmsTxt,
+  pagesJson,
   twinContent,
   twinRelativePath,
 } from './emit.js';
@@ -33,6 +34,12 @@ export interface AgentEndpointsOptions {
    * never reach the agent surface.
    */
   excludeField?: string;
+  /**
+   * Frontmatter fields to emit into llms.txt entries and pages.json
+   * (S2.2.2). The preset fills this from schema fields marked
+   * `index: true`; values are stringified (dates as YYYY-MM-DD).
+   */
+  indexFields?: string[];
 }
 
 /** The slice of the docs plugin's loaded content this plugin reads. */
@@ -70,6 +77,25 @@ function includedDocs(
     .sort((a, b) => a.permalink.localeCompare(b.permalink));
 }
 
+function pickIndexFields(
+  frontMatter: Record<string, unknown>,
+  indexFields: string[],
+): Record<string, string> | undefined {
+  if (indexFields.length === 0) {
+    return undefined;
+  }
+  const fields: Record<string, string> = {};
+  for (const name of indexFields) {
+    const value = frontMatter[name];
+    if (value === undefined || value === null) {
+      continue;
+    }
+    fields[name] =
+      value instanceof Date ? value.toISOString().slice(0, 10) : String(value);
+  }
+  return Object.keys(fields).length > 0 ? fields : undefined;
+}
+
 function sourcePathFor(source: string, siteDir: string): string {
   return source.startsWith('@site/')
     ? path.join(siteDir, source.slice('@site/'.length))
@@ -84,6 +110,7 @@ export default function pluginAgentEndpoints(
   const emitTwins = options.markdownTwins ?? true;
   const emitLinks = options.discoveryLinks ?? true;
   const excludeField = options.excludeField ?? 'ingest';
+  const indexFields = options.indexFields ?? [];
 
   let docs: DocsPluginDoc[] = [];
 
@@ -124,6 +151,7 @@ export default function pluginAgentEndpoints(
           description: doc.description,
           permalink: doc.permalink,
           markdown: await readFile(sourcePathFor(doc.source, siteDir), 'utf8'),
+          fields: pickIndexFields(doc.frontMatter, indexFields),
         })),
       );
 
@@ -149,6 +177,10 @@ export default function pluginAgentEndpoints(
         await writeFile(
           path.join(outDir, 'llms.txt'),
           llmsTxt(site, agentDocs),
+        );
+        await writeFile(
+          path.join(outDir, 'pages.json'),
+          pagesJson(site, agentDocs),
         );
         await writeFile(
           path.join(outDir, 'llms-full.txt'),
@@ -204,6 +236,7 @@ export {
   alternateLinkTags,
   llmsFullTxt,
   llmsTxt,
+  pagesJson,
   twinContent,
   twinHref,
   twinRelativePath,

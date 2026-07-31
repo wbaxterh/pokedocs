@@ -17,6 +17,9 @@ import type {
 import type { AgentEndpointsOptions } from '@pokedocs/plugin-agent-endpoints';
 import pluginAgentEndpoints from '@pokedocs/plugin-agent-endpoints';
 import type { FrontmatterSchemaOptions } from '@pokedocs/plugin-frontmatter-schema';
+import pluginFrontmatterSchema, {
+  indexedFields,
+} from '@pokedocs/plugin-frontmatter-schema';
 import type { MermaidSsrOptions } from '@pokedocs/plugin-mermaid-ssr';
 import { rehypeMermaidSsr } from '@pokedocs/plugin-mermaid-ssr';
 import type { BrandingOptions } from '@pokedocs/theme';
@@ -112,11 +115,33 @@ export default function pokedocsPreset(
   }
 
   const plugins = [...(classic.plugins ?? [])];
+  const schemas =
+    options.frontmatterSchema === false
+      ? []
+      : (options.frontmatterSchema?.schemas ?? []);
+  if (options.frontmatterSchema !== false) {
+    // Frontmatter contracts (F2.2), permissive with zero config.
+    const entry: PluginConfig = [
+      pluginFrontmatterSchema as PluginModule,
+      { schemas },
+    ];
+    plugins.push(entry);
+  }
   if (options.agentEndpoints !== false) {
     // Pillar 4, on by default: llms.txt, .md twins, discovery links (F1.5).
+    // Schema fields marked index: true flow into the agent surface (S2.2.2).
+    const schemaIndexFields = indexedFields(schemas);
     const entry: PluginConfig = [
       pluginAgentEndpoints as PluginModule,
-      { ...options.agentEndpoints },
+      {
+        ...options.agentEndpoints,
+        indexFields: [
+          ...new Set([
+            ...schemaIndexFields,
+            ...(options.agentEndpoints?.indexFields ?? []),
+          ]),
+        ],
+      },
     ];
     plugins.push(entry);
   }

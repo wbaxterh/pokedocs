@@ -5,6 +5,7 @@ import {
   injectIntoHead,
   llmsFullTxt,
   llmsTxt,
+  pagesJson,
   stripFrontmatter,
   twinContent,
   twinHref,
@@ -104,6 +105,38 @@ describe('llms-full.txt (S1.5.1)', () => {
     expect(output).toContain('```mermaid\ngraph TB');
     expect(output).toContain('# Branding\n\nOne block.');
     expect(output.split('\n---\n')).toHaveLength(2);
+  });
+});
+
+describe('validated metadata flows to the surface (S2.2.2)', () => {
+  it('appends indexed fields to llms.txt entries', () => {
+    const output = llmsTxt(SITE, [
+      doc({ fields: { status: 'accepted', owner: 'platform' } }),
+    ]);
+    expect(output).toContain(
+      '): How PokeDocs is structured. (status: accepted; owner: platform)',
+    );
+  });
+
+  it('emits pages.json with the stable contract shape', () => {
+    const output = JSON.parse(
+      pagesJson(SITE, [
+        doc({ fields: { status: 'accepted' } }),
+        doc({ title: 'Plain', permalink: '/pokedocs/plain' }),
+      ]),
+    );
+    expect(output.site).toEqual({
+      title: 'PokeDocs',
+      url: 'https://wbaxterh.github.io',
+    });
+    expect(output.pages[0]).toEqual({
+      title: 'Architecture',
+      description: 'How PokeDocs is structured.',
+      url: 'https://wbaxterh.github.io/pokedocs/architecture',
+      markdownUrl: 'https://wbaxterh.github.io/pokedocs/architecture.md',
+      fields: { status: 'accepted' },
+    });
+    expect(output.pages[1].fields).toBeUndefined();
   });
 });
 
