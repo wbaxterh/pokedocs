@@ -19,9 +19,34 @@ export interface DocInfo {
   unlisted: boolean;
 }
 
-/** Docusaurus strips list-ordering prefixes like "01-" from ids. */
+/**
+ * Mirrors Docusaurus's DefaultNumberPrefixParser
+ * (`@docusaurus/plugin-content-docs/src/numberPrefix.ts`).
+ *
+ * This must not drift from upstream. A doc id we derive differently from the
+ * one Docusaurus builds shows up as a phantom `dangling-sidebar-entry` error
+ * AND a phantom `orphaned-page` warning for the very same file, while the
+ * site builds and serves perfectly — a hard error on a page that works.
+ */
+
+/**
+ * Date-like (`2026-08-07-…`) and version-like (`7.0-…`) prefixes are not
+ * ordering prefixes. Upstream: facebook/docusaurus#4640 and #4653.
+ */
+const IGNORED_PREFIX_PATTERN = /^\d+[-_.]\d+/;
+
+/**
+ * A real ordering prefix: digits, separators, then a suffix that does not
+ * itself begin with a separator or whitespace. Matches `0-myDoc` and
+ * `003 - myDoc`, but not `10` or `1-`.
+ */
+const NUMBER_PREFIX_PATTERN = /^\d+\s*[-_.]+\s*(?=[^-_.\s])/;
+
 function stripNumberPrefix(segment: string): string {
-  return segment.replace(/^\d+[-_. ]/, '');
+  if (IGNORED_PREFIX_PATTERN.test(segment)) {
+    return segment;
+  }
+  return segment.replace(NUMBER_PREFIX_PATTERN, '');
 }
 
 export function docIdFor(relToDocsDir: string, frontmatterId?: string): string {
