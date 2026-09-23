@@ -24,7 +24,7 @@ const OPTION_HELP: Record<(typeof KNOWN_KEYS)[number], string> = {
   mermaid: `expected a mermaid options object or false (it is on by default; there is no 'true')
   Example:
     presets: [['@pokedocs/preset', { mermaid: { themeVariables: { primaryColor: '#D8232A' } } }]]`,
-  agentEndpoints: `expected { llmsTxt?, markdownTwins?, discoveryLinks?: boolean, excludeField?: string } or false
+  agentEndpoints: `expected { llmsTxt?, markdownTwins?, discoveryLinks?: boolean, excludeField?: string, indexPointer?: boolean | string } or false
   Example:
     presets: [['@pokedocs/preset', { agentEndpoints: { excludeField: 'ingest' } }]]`,
   frontmatterSchema: `expected { schemas: [{ include: glob, fields: { name: { type, required?, values?, index? } } }] } or false
@@ -203,6 +203,17 @@ export function validatePresetOptions(
         problem(
           'agentEndpoints.excludeField',
           `expected a frontmatter field name, got ${show(agentEndpoints.excludeField)}`,
+        );
+      }
+      const pointer = agentEndpoints.indexPointer;
+      if (
+        pointer !== undefined &&
+        typeof pointer !== 'boolean' &&
+        (typeof pointer !== 'string' || pointer.trim() === '')
+      ) {
+        problem(
+          'agentEndpoints.indexPointer',
+          `expected a boolean or a non-empty instruction line, got ${show(pointer)}`,
         );
       }
     }

@@ -116,6 +116,19 @@ describe('S1.2.2 — config validation with human errors', () => {
     );
   });
 
+  it('accepts indexPointer as a boolean or an instruction line (S3.2.3)', () => {
+    for (const indexPointer of [true, false, 'Start at the index.']) {
+      expect(() =>
+        validatePresetOptions({ agentEndpoints: { indexPointer } }),
+      ).not.toThrow();
+    }
+    for (const indexPointer of ['  ', 3]) {
+      expect(failure({ agentEndpoints: { indexPointer } })).toContain(
+        '`agentEndpoints.indexPointer`',
+      );
+    }
+  });
+
   it('accepts real frontmatter schemas and rejects bad shapes per-field (S2.2.1)', () => {
     expect(() =>
       validatePresetOptions({

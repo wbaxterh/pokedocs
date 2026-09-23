@@ -6,11 +6,11 @@
  * it a build error.
  */
 
+import { isPlaceholderUrl } from '@pokedocs/plugin-agent-endpoints';
 import { PokedocsConfigError } from './validate.js';
 
-/** localhost in any spelling, and the RFC 2606 example domains. */
-const PLACEHOLDER_URL =
-  /\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:\d+)?([/?#]|$)|(\/\/|\.)example\.(com|org|net)([/?#]|$)/i;
+// One definition, shared with the twin index pointer (S3.2.3).
+export { isPlaceholderUrl };
 
 export interface UrlGuardEnv {
   /** True for `docusaurus build` (NODE_ENV=production). */
@@ -18,10 +18,6 @@ export interface UrlGuardEnv {
   /** POKEDOCS_STRICT_URL=true|1 escalates the warning to an error. */
   strict: boolean;
   logger?: (message: string) => void;
-}
-
-export function isPlaceholderUrl(url: string): boolean {
-  return PLACEHOLDER_URL.test(url);
 }
 
 export function checkSiteUrl(url: string, env: UrlGuardEnv): void {
