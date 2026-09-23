@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   type AgentDoc,
   alternateLinkTags,
+  DEFAULT_POINTER_TEXT,
+  indexPointer,
   injectIntoHead,
+  isPlaceholderUrl,
   llmsFullTxt,
   llmsTxt,
   pagesJson,
@@ -67,6 +70,46 @@ describe('twin content (S1.5.2)', () => {
 
   it('leaves markdown without frontmatter untouched', () => {
     expect(stripFrontmatter('# Hi\n\ntext')).toBe('# Hi\n\ntext');
+  });
+});
+
+describe('index pointer (S3.2.3)', () => {
+  const pointer = indexPointer(SITE);
+
+  it('names the absolute llms.txt URL in a blockquote', () => {
+    expect(pointer).toBe(
+      `> **Documentation index:** https://wbaxterh.github.io/pokedocs/llms.txt\n> ${DEFAULT_POINTER_TEXT}\n\n`,
+    );
+  });
+
+  it('opens the twin, and the page title stays the first heading', () => {
+    const twin = twinContent(doc(), pointer);
+    expect(twin.startsWith('> **Documentation index:**')).toBe(true);
+    expect(twin.match(/^#{1,6} .*$/m)?.[0]).toBe('# Architecture');
+    const untitled = twinContent(
+      doc({ markdown: '---\ntitle: Setup\n---\n\nJust prose.\n' }),
+      pointer,
+    );
+    expect(untitled.match(/^#{1,6} .*$/m)?.[0]).toBe('# Architecture');
+  });
+
+  it('takes a custom instruction line', () => {
+    expect(indexPointer(SITE, 'Start here.')).toContain('\n> Start here.\n');
+  });
+
+  it('never reaches llms-full.txt', () => {
+    expect(llmsFullTxt(SITE, [doc()])).not.toContain('Documentation index');
+  });
+
+  it.each(['http://localhost:3000', 'https://your-docs.example.com'])(
+    'treats %s as a placeholder',
+    (url) => {
+      expect(isPlaceholderUrl(url)).toBe(true);
+    },
+  );
+
+  it('accepts a real site url', () => {
+    expect(isPlaceholderUrl('https://wbaxterh.github.io')).toBe(false);
   });
 });
 

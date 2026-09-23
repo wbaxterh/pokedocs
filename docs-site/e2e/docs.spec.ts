@@ -127,12 +127,33 @@ test('every doc page has a markdown twin, mermaid intact (S1.5.2)', async ({
   page,
 }) => {
   const md = await (await page.request.get('./architecture.md')).text();
-  expect(md.startsWith('# Architecture')).toBe(true);
+  // The page title is the first heading, below the S3.2.3 index pointer.
+  expect(md.match(/^#{1,6} .*$/m)?.[0]).toBe('# Architecture');
   expect(md).toContain('graph TB');
   expect(md).not.toContain('sidebar_position'); // frontmatter stripped
   // The root doc (slug /) twins as /index.md.
   const root = await (await page.request.get('./index.md')).text();
   expect(root).toContain('# PokeDocs');
+});
+
+test('every twin points at llms.txt, the corpus does not (S3.2.3)', async ({
+  page,
+}) => {
+  for (const twin of ['./architecture.md', './index.md']) {
+    const md = await (await page.request.get(twin)).text();
+    expect(md).toMatch(
+      /^> \*\*Documentation index:\*\* https:\/\/.+\/pokedocs\/llms\.txt\n/,
+    );
+  }
+  // Sections open "# Title / URL: … / body"; no body may start with the
+  // pointer. (agent-endpoints.md quotes it in a code fence, so a plain
+  // substring check would be wrong.)
+  const corpus = await (await page.request.get('./llms-full.txt')).text();
+  const bodies = corpus.split(/^URL: .+\n\n/m).slice(1);
+  expect(bodies.length).toBeGreaterThan(5);
+  for (const body of bodies) {
+    expect(body.startsWith('> **Documentation index:**')).toBe(false);
+  }
 });
 
 test('discovery links point at the agent surface (S1.5.3)', async ({ page }) => {

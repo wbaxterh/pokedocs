@@ -13,7 +13,9 @@ import type { LoadContext, Plugin } from '@docusaurus/types';
 import {
   type AgentDoc,
   alternateLinkTags,
+  indexPointer,
   injectIntoHead,
+  isPlaceholderUrl,
   llmsFullTxt,
   llmsTxt,
   pagesJson,
@@ -40,6 +42,12 @@ export interface AgentEndpointsOptions {
    * `index: true`; values are stringified (dates as YYYY-MM-DD).
    */
   indexFields?: string[];
+  /**
+   * Open every .md twin with a pointer to llms.txt (S3.2.3). Default true;
+   * a string replaces the instruction line. Needs `llmsTxt` and a real
+   * site `url`: a pointer at localhost is skipped with a warning.
+   */
+  indexPointer?: boolean | string;
 }
 
 /** The slice of the docs plugin's loaded content this plugin reads. */
@@ -111,6 +119,7 @@ export default function pluginAgentEndpoints(
   const emitLinks = options.discoveryLinks ?? true;
   const excludeField = options.excludeField ?? 'ingest';
   const indexFields = options.indexFields ?? [];
+  const pointerOption = options.indexPointer ?? true;
 
   let docs: DocsPluginDoc[] = [];
 
@@ -163,13 +172,26 @@ export default function pluginAgentEndpoints(
       };
 
       if (emitTwins) {
+        let pointer = '';
+        if (emitLlms && pointerOption !== false) {
+          if (isPlaceholderUrl(url)) {
+            console.warn(
+              `[@pokedocs/plugin-agent-endpoints] site url ${JSON.stringify(url)} is a placeholder; .md twins ship without the llms.txt pointer`,
+            );
+          } else {
+            pointer = indexPointer(
+              site,
+              typeof pointerOption === 'string' ? pointerOption : undefined,
+            );
+          }
+        }
         for (const doc of agentDocs) {
           const target = path.join(
             outDir,
             twinRelativePath(doc.permalink, baseUrl),
           );
           await mkdir(path.dirname(target), { recursive: true });
-          await writeFile(target, twinContent(doc));
+          await writeFile(target, twinContent(doc, pointer));
         }
       }
 
@@ -234,6 +256,9 @@ export default function pluginAgentEndpoints(
 export {
   type AgentDoc,
   alternateLinkTags,
+  DEFAULT_POINTER_TEXT,
+  indexPointer,
+  isPlaceholderUrl,
   llmsFullTxt,
   llmsTxt,
   pagesJson,

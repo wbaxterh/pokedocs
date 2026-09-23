@@ -51,12 +51,38 @@ export function stripFrontmatter(markdown: string): string {
 /**
  * Twin content (S1.5.2): the source markdown without frontmatter, with the
  * page title guaranteed as an H1 so the twin reads like the HTML page even
- * when the title came from frontmatter.
+ * when the title came from frontmatter. An optional pointer (S3.2.3) goes
+ * above the title.
  */
-export function twinContent(doc: AgentDoc): string {
+export function twinContent(doc: AgentDoc, pointer = ''): string {
   const body = stripFrontmatter(doc.markdown);
   const hasH1 = /^#\s/.test(body);
-  return `${hasH1 ? '' : `# ${doc.title}\n\n`}${body}`.trimEnd().concat('\n');
+  return `${pointer}${hasH1 ? '' : `# ${doc.title}\n\n`}${body}`
+    .trimEnd()
+    .concat('\n');
+}
+
+export const DEFAULT_POINTER_TEXT =
+  'Use this file to discover all available pages before exploring further.';
+
+/** localhost in any spelling, and the RFC 2606 example domains. */
+const PLACEHOLDER_URL =
+  /\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:\d+)?([/?#]|$)|(\/\/|\.)example\.(com|org|net)([/?#]|$)/i;
+
+export function isPlaceholderUrl(url: string): boolean {
+  return PLACEHOLDER_URL.test(url);
+}
+
+/**
+ * Index pointer (S3.2.3): agents usually land on one twin from a search
+ * result, so each twin names the llms.txt that lists the rest. A blockquote,
+ * not a heading, so the page title stays the twin's first heading.
+ */
+export function indexPointer(
+  site: SiteInfo,
+  text = DEFAULT_POINTER_TEXT,
+): string {
+  return `> **Documentation index:** ${site.url}${site.baseUrl}llms.txt\n> ${text}\n\n`;
 }
 
 /**

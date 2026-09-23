@@ -33,6 +33,22 @@ carries a `<link rel="alternate" type="text/markdown">` pointing at its
 twin, and a `<link rel="alternate" type="text/plain">` pointing at
 `/llms.txt`. An agent landing anywhere finds everything.
 
+Agents usually arrive at a single twin from a search result or a pasted
+link and never see the HTML head, so every twin also opens with a pointer
+to the index:
+
+```md title="/pokedocs/architecture.md"
+> **Documentation index:** https://wbaxterh.github.io/pokedocs/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Architecture
+```
+
+The pointer stays out of `llms-full.txt`, and it is skipped (with a build
+warning) while the site `url` is still a placeholder, because a link to
+localhost would mislead. `indexPointer: false` removes it; a string
+replaces the second line.
+
 ## Excluding a page
 
 Set `ingest: false` in a page's frontmatter and it disappears from the
@@ -44,7 +60,7 @@ presets: [
   ['@pokedocs/preset', {
     agentEndpoints: {
       excludeField: 'ingest', // the default
-      // llmsTxt / markdownTwins / discoveryLinks: false to disable pieces
+      // llmsTxt / markdownTwins / discoveryLinks / indexPointer: false to disable pieces
     },
   }],
 ]
