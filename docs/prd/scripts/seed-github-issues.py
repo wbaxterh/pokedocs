@@ -64,7 +64,7 @@ def split_acceptance(text):
 
 
 def parse_prd():
-    text = PRD.read_text()
+    text = PRD.read_text(encoding="utf-8")
     section8 = text.split("## 8. Milestones")[1].split("\n## 9.")[0]
     milestones, features, stories = {}, {}, []
     cur_m, cur_f = None, None

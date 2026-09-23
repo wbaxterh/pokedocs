@@ -58,6 +58,8 @@ That trade is the market gap. **PokeDocs' positioning: everything ElizaOS left D
 | llms.txt / llms-full.txt | Community plugins only | Near-core plugins | Documented patterns | ✅ Automatic | ✅ Default, static |
 | Per-page `.md` twins | Community plugin | Plugin | ✅ Prerendered | ✅ (server-side) | ✅ Static files |
 | MCP for docs | Community plugin | ✗ | ✗ | ✅ Hosted | ✅ Static-compatible |
+| HTTP discovery (`Link` headers, `Accept: text/markdown`) | ✗ | ✗ | Partial | ✅ (server-side) | ✅ Generated host config |
+| Agent-skill / agent-card discovery | ✗ | ✗ | ✗ | ✅ Automatic | ✅ Static `.well-known` |
 | Build-time mermaid (SVG in HTML) | ✗ (open since 2022) | ✗ | ✗ | Partial | ✅ Default |
 | Config-only branding | ✗ (CSS ladder) | Partial | Partial | ✅ (`docs.json`) | ✅ Schema-validated |
 | Docs-drift CI | ✗ | ✗ | ✗ | Proprietary agents | ✅ OSS templates |
@@ -363,6 +365,8 @@ Goal: catch everything a green build doesn't. This milestone productizes checks 
 
 Goal: from "agents can read it" to "agents are first-class users" — and take the fidelity ceiling upstream.
 
+**Reference benchmark (observed 2026-09-23): `docs.typesafe.ai`, a current Mintlify site.** Its agent surface, captured from live responses, sets the bar for this milestone. Every HTTP response carries `Link` headers advertising `llms.txt`, `llms-full.txt`, `/.well-known/agent-skills/index.json`, `/.well-known/agent-card.json`, and `/.well-known/mcp/server-card.json`. `Accept: text/markdown` on any page URL returns the markdown twin (`Vary: Accept`). Every markdown twin opens with a three-line pointer to `llms.txt`. The hosted MCP server exposes exactly two tools: `search`, and a read-only shell-like query over a virtual filesystem of the pages (`head`/`cat` on `<path>.mdx`) in place of a family of get-page tools. The stories below reach parity as static artifacts plus generated host configuration, which is the gap Mintlify cannot close: its surface depends on its own servers.
+
 #### F3.1 Page-level agent actions (`@pokedocs/theme`)
 - **S3.1.1 — Copy as Markdown / Open in agent**
   *As a reader working with an AI assistant, I want per-page "Copy as Markdown" and "Open in Claude/ChatGPT" actions, so that moving a page into my agent's context is one click.*
@@ -370,11 +374,17 @@ Goal: from "agents can read it" to "agents are first-class users" — and take t
 
 #### F3.2 Discovery surface
 - **S3.2.1 — Well-known discovery files**
-  *As P4, I want an enumerated set of discovery artifacts — `/skill.md`, `/.well-known/pokedocs.json` (site manifest: name, version, routes to llms/index artifacts), and the full JSON site index (routes, titles, validated metadata; extends the S2.2.2 seed) — so that tools can auto-configure against any PokeDocs site.*
-  Acceptance: exactly these artifacts emitted statically on every build; each format documented with a schema; filenames stable and versioned in the manifest.
+  *As P4, I want an enumerated set of discovery artifacts, named to the conventions agents already probe for, so that tools can auto-configure against any PokeDocs site without learning a PokeDocs-specific layout.*
+  Acceptance: every build statically emits `/.well-known/agent-skills/index.json` (agentskills.io discovery schema 0.2.0, each entry carrying a `sha256` digest of its file), the skill it lists at `/.well-known/agent-skills/<name>/skill.md` (generated from site config and frontmatter, overridable by a hand-written file), `/.well-known/agent-card.json` (A2A card: name, description, documentation URL, the skill list), `/.well-known/pokedocs.json` (site manifest: name, version, routes to llms/index artifacts), and the full JSON site index (routes, titles, validated metadata; extends the S2.2.2 seed); `/.well-known/mcp/server-card.json` is emitted only when an MCP endpoint is configured (S3.3.2/S3.3.3), never pointing at nothing; each format documented with its schema; filenames stable and versioned in the manifest; `ingest: false` pages absent from all of them.
 - **S3.2.2 — Discovery-conventions ADR**
   *As the maintainer, I want a written compatibility stance on emerging agent-discovery conventions (Mintlify skill.md, agent-card patterns, llms.txt evolution), so that S3.2.1's artifact set tracks the ecosystem deliberately instead of ad hoc.*
   Acceptance: ADR published in the repo naming which conventions we emit, which we watch, and the review cadence.
+- **S3.2.3 — Index pointer in every markdown twin**
+  *As P4 landing on one `.md` twin from a search result or a pasted link, I want the twin to open with a short pointer to `llms.txt`, so that I discover the rest of the site from any single page instead of only from the root.*
+  Acceptance: every `.md` twin begins with a blockquote naming the absolute `llms.txt` URL and one line of instruction; the pointer is absent from `llms-full.txt` (the corpus must not repeat it per page); on by default, disable-able and text-overridable in `agentEndpoints` options; twins stay valid markdown whose first heading is the page title; skipped with a build warning when `url` is a placeholder, since a pointer at localhost misleads.
+- **S3.2.4 — Generated HTTP discovery for hosts that allow it**
+  *As P4, I want responses from a PokeDocs site to carry `Link` headers to the agent artifacts, and page URLs to return the markdown twin when I send `Accept: text/markdown`, so that an agent gets clean markdown from the URL it already has without knowing the `.md` convention.*
+  Acceptance: `pokedocs deploy init` writes the header and negotiation config for each target that supports it: `_headers` + `_redirects` (Netlify, Cloudflare Pages), `vercel.json` headers + `has`-conditioned rewrites (Vercel), and a `map $http_accept` block in the generated nginx conf (Docker); negotiated responses send `Vary: Accept`; `Link` targets are derived from the same artifact list as S3.2.1 so the two cannot disagree; GitHub Pages, which cannot set headers, is documented as a limitation with the HTML `<link rel>` tags (S1.5.3) as its fallback; each target verified with `curl -H 'Accept: text/markdown'` against a real deploy.
 
 #### F3.3 MCP story
 - **S3.3.1 — Static-first MCP compatibility**
@@ -382,7 +392,10 @@ Goal: from "agents can read it" to "agents are first-class users" — and take t
   Acceptance: documented, tested recipe connecting Claude Code to a PokeDocs site's content via its static artifacts; gaps that force server-side MCP are identified and fed into S3.3.2.
 - **S3.3.2 — `pokedocs mcp` (optional local server)**
   *As P2, I want an optional `pokedocs mcp` command serving search + page tools over the built site, so that teams wanting richer MCP (semantic search) can run it themselves — no vendor.*
-  Acceptance: MCP server exposes documented search/fetch tools over a built site directory; works pointed at any PokeDocs build output; explicitly optional.
+  Acceptance: MCP server exposes exactly two tools over a built site directory: `search` (ranked hits with title, path, and snippet) and a read-only filesystem query (`ls`, `cat`, `head`, `grep` over a virtual tree of the `.md` twins, with no access to anything outside it); tool descriptions tell the agent how the two compose (search, then read the path); every tool marked `readOnlyHint`; works pointed at any PokeDocs build output; stdio and streamable HTTP transports; explicitly optional.
+- **S3.3.3 — Edge-hosted MCP template**
+  *As P1, I want `pokedocs deploy init mcp-worker` to generate a Cloudflare Worker that serves the S3.3.2 tools from my built artifacts, so that my readers get a public MCP endpoint without me running a server.*
+  Acceptance: the Worker reads the same build output as S3.3.2 and shares its tool implementations (one codebase, two transports); fits the free tier for a 200-page site; the generated config sets the endpoint URL that S3.2.1 writes into `mcp/server-card.json`; verified by connecting Claude Code to a deployed Worker.
 
 #### F3.4 Upstream: native markdown emission (the one fork-level item)
 - **S3.4.1 — Spike: markdown emission inside the SSG pipeline**
