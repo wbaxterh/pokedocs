@@ -4,6 +4,7 @@
  * never silently at runtime.
  */
 
+import { isValidSkillName } from '@pokedocs/plugin-agent-endpoints';
 import type { PokedocsPresetOptions } from './index.js';
 
 const KNOWN_KEYS = [
@@ -24,7 +25,7 @@ const OPTION_HELP: Record<(typeof KNOWN_KEYS)[number], string> = {
   mermaid: `expected a mermaid options object or false (it is on by default; there is no 'true')
   Example:
     presets: [['@pokedocs/preset', { mermaid: { themeVariables: { primaryColor: '#D8232A' } } }]]`,
-  agentEndpoints: `expected { llmsTxt?, markdownTwins?, discoveryLinks?: boolean, excludeField?: string, indexPointer?: boolean | string } or false
+  agentEndpoints: `expected { llmsTxt?, markdownTwins?, discoveryLinks?: boolean, excludeField?: string, indexPointer?: boolean | string, agentSkill?: { name?, description? } | false } or false
   Example:
     presets: [['@pokedocs/preset', { agentEndpoints: { excludeField: 'ingest' } }]]`,
   frontmatterSchema: `expected { schemas: [{ include: glob, fields: { name: { type, required?, values?, index? } } }] } or false
@@ -215,6 +216,36 @@ export function validatePresetOptions(
           'agentEndpoints.indexPointer',
           `expected a boolean or a non-empty instruction line, got ${show(pointer)}`,
         );
+      }
+      const skill = agentEndpoints.agentSkill;
+      if (skill !== undefined && skill !== false) {
+        if (!isPlainObject(skill)) {
+          problem(
+            'agentEndpoints.agentSkill',
+            `expected { name?, description? } or false, got ${show(skill)}`,
+          );
+        } else {
+          if (
+            skill.name !== undefined &&
+            (typeof skill.name !== 'string' || !isValidSkillName(skill.name))
+          ) {
+            problem(
+              'agentEndpoints.agentSkill.name',
+              `expected 1-64 lowercase letters, digits, and single hyphens (not at either end), got ${show(skill.name)}`,
+            );
+          }
+          if (
+            skill.description !== undefined &&
+            (typeof skill.description !== 'string' ||
+              skill.description.trim() === '' ||
+              skill.description.length > 1024)
+          ) {
+            problem(
+              'agentEndpoints.agentSkill.description',
+              `expected a non-empty string of at most 1024 characters, got ${show(skill.description)}`,
+            );
+          }
+        }
       }
     }
   }

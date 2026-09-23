@@ -115,13 +115,14 @@ function fieldsSuffix(doc: AgentDoc): string {
 /**
  * /pages.json (S2.2.2): the minimal machine-readable page index — the
  * stable seed contract that the M3 discovery index extends. One entry
- * per page: title, description, canonical url, markdown twin url, and
- * any schema-validated fields marked `index: true`.
+ * per page: title, description, route path (S3.2.1), canonical url,
+ * markdown twin url, and any schema-validated fields marked `index: true`.
  */
 export function pagesJson(site: SiteInfo, docs: AgentDoc[]): string {
   const pages = docs.map((doc) => ({
     title: doc.title,
     description: doc.description,
+    path: doc.permalink,
     url: `${site.url}${doc.permalink}`,
     markdownUrl: `${site.url}${twinHref(doc.permalink, site.baseUrl)}`,
     ...(doc.fields && Object.keys(doc.fields).length > 0

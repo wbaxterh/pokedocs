@@ -3,13 +3,25 @@
  *
  * Every build emits /llms.txt (indexed page list), /llms-full.txt (full
  * corpus), a .md twin beside every HTML page with mermaid source intact,
- * and <link rel="alternate"> discovery tags. Pure static files: works
- * identically on GitHub Pages, Vercel, Netlify, or nginx.
+ * <link rel="alternate"> discovery tags, and the /.well-known discovery
+ * files (agent-skills index + SKILL.md, pokedocs.json). Pure static files:
+ * works identically on GitHub Pages, Vercel, Netlify, or nginx.
  */
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { LoadContext, Plugin } from '@docusaurus/types';
+import {
+  agentSkillsIndex,
+  frontmatterDescription,
+  isValidSkillName,
+  pokedocsManifest,
+  sha256Digest,
+  skillDescription,
+  skillHref,
+  skillMd,
+  skillNameFor,
+} from './discovery.js';
 import {
   type AgentDoc,
   alternateLinkTags,
@@ -19,6 +31,7 @@ import {
   llmsFullTxt,
   llmsTxt,
   pagesJson,
+  type SiteInfo,
   twinContent,
   twinRelativePath,
 } from './emit.js';
@@ -48,6 +61,22 @@ export interface AgentEndpointsOptions {
    * site `url`: a pointer at localhost is skipped with a warning.
    */
   indexPointer?: boolean | string;
+  /**
+   * The agent skill published at /.well-known/agent-skills/ (S3.2.1).
+   * `name` defaults to a slug of the site title, `description` to one
+   * generated from the title and tagline. A SKILL.md at the same path in
+   * `static/` replaces the generated one. `false` skips the skill.
+   */
+  agentSkill?: false | { name?: string; description?: string };
+}
+
+const PACKAGE_NAME = '@pokedocs/plugin-agent-endpoints';
+
+async function generatorId(): Promise<string> {
+  const pkg = await readFile(path.join(__dirname, '..', 'package.json'), 'utf8')
+    .then((text) => JSON.parse(text) as { version?: string })
+    .catch(() => ({ version: undefined }));
+  return pkg.version ? `${PACKAGE_NAME}@${pkg.version}` : PACKAGE_NAME;
 }
 
 /** The slice of the docs plugin's loaded content this plugin reads. */
@@ -110,6 +139,59 @@ function sourcePathFor(source: string, siteDir: string): string {
     : source;
 }
 
+/**
+ * S3.2.1: the agent-skills index (with its SKILL.md) and pokedocs.json.
+ * The index digest is taken from the bytes on disk, so a hand-written
+ * SKILL.md copied from static/ is hashed exactly as served.
+ */
+async function writeWellKnown(
+  outDir: string,
+  site: SiteInfo,
+  docs: AgentDoc[],
+  skillOption: false | { name?: string; description?: string },
+): Promise<void> {
+  const wellKnown = path.join(outDir, '.well-known');
+  if (skillOption !== false) {
+    const name = skillOption.name ?? skillNameFor(site.title);
+    const skillPath = path.join(wellKnown, 'agent-skills', name, 'SKILL.md');
+    const handWritten = await readFile(skillPath, 'utf8').catch(() => null);
+    const description =
+      (handWritten === null ? null : frontmatterDescription(handWritten)) ??
+      skillOption.description ??
+      skillDescription(site, docs.length);
+    if (handWritten !== null && frontmatterDescription(handWritten) === null) {
+      console.warn(
+        `[${PACKAGE_NAME}] no single-line description in ${skillPath}; the agent-skills index uses the configured one, which may not match`,
+      );
+    }
+    if (handWritten === null) {
+      await mkdir(path.dirname(skillPath), { recursive: true });
+      await writeFile(skillPath, skillMd(site, docs, { name, description }));
+    }
+    const bytes = await readFile(skillPath);
+    await writeFile(
+      path.join(wellKnown, 'agent-skills', 'index.json'),
+      agentSkillsIndex([
+        {
+          name,
+          description,
+          url: skillHref(site.baseUrl, name),
+          digest: sha256Digest(bytes),
+        },
+      ]),
+    );
+  }
+  await mkdir(wellKnown, { recursive: true });
+  await writeFile(
+    path.join(wellKnown, 'pokedocs.json'),
+    pokedocsManifest(site, {
+      generator: await generatorId(),
+      pageCount: docs.length,
+      agentSkills: skillOption !== false,
+    }),
+  );
+}
+
 export default function pluginAgentEndpoints(
   context: LoadContext,
   options: AgentEndpointsOptions = {},
@@ -120,6 +202,16 @@ export default function pluginAgentEndpoints(
   const excludeField = options.excludeField ?? 'ingest';
   const indexFields = options.indexFields ?? [];
   const pointerOption = options.indexPointer ?? true;
+  const skillOption = options.agentSkill ?? {};
+  if (
+    skillOption !== false &&
+    skillOption.name !== undefined &&
+    !isValidSkillName(skillOption.name)
+  ) {
+    throw new Error(
+      `[${PACKAGE_NAME}] agentSkill.name ${JSON.stringify(skillOption.name)} is not a valid skill name: 1-64 lowercase letters, digits, and single hyphens, not at either end`,
+    );
+  }
 
   let docs: DocsPluginDoc[] = [];
 
@@ -208,6 +300,7 @@ export default function pluginAgentEndpoints(
           path.join(outDir, 'llms-full.txt'),
           llmsFullTxt(site, agentDocs),
         );
+        await writeWellKnown(outDir, site, agentDocs, skillOption);
       }
 
       if (emitLinks && emitTwins) {
@@ -253,6 +346,18 @@ export default function pluginAgentEndpoints(
   };
 }
 
+export {
+  AGENT_SKILLS_SCHEMA,
+  agentSkillsIndex,
+  frontmatterDescription,
+  isValidSkillName,
+  MANIFEST_VERSION,
+  pokedocsManifest,
+  sha256Digest,
+  skillDescription,
+  skillMd,
+  skillNameFor,
+} from './discovery.js';
 export {
   type AgentDoc,
   alternateLinkTags,

@@ -70,7 +70,10 @@ describe('S1.7.1 — deploy init plumbing', () => {
       'utf8',
     );
     expect(workflow).toContain('actions/deploy-pages@v4');
-    expect(workflow).toContain('upload-pages-artifact');
+    // .well-known/ is a dot-directory: without this, v4+ ships no discovery files.
+    expect(workflow).toMatch(
+      /upload-pages-artifact@v5\n\s+with:\n\s+include-hidden-files: true\n\s+path: build/,
+    );
     expect(workflow).toContain('playwright install --with-deps chromium');
     // biome-ignore lint/suspicious/noTemplateCurlyInString: asserting the literal GitHub Actions expression survives into the workflow
     expect(workflow).toContain("${{ hashFiles('package-lock.json') }}");
