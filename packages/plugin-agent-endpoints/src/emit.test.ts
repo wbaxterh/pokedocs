@@ -175,6 +175,7 @@ describe('validated metadata flows to the surface (S2.2.2)', () => {
     expect(output.pages[0]).toEqual({
       title: 'Architecture',
       description: 'How PokeDocs is structured.',
+      path: '/pokedocs/architecture',
       url: 'https://wbaxterh.github.io/pokedocs/architecture',
       markdownUrl: 'https://wbaxterh.github.io/pokedocs/architecture.md',
       fields: { status: 'accepted' },

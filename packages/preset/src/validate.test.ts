@@ -116,6 +116,27 @@ describe('S1.2.2 — config validation with human errors', () => {
     );
   });
 
+  it('accepts agentSkill and names the bad field (S3.2.1)', () => {
+    for (const agentSkill of [
+      false,
+      {},
+      { name: 'my-docs', description: 'Use when working on my docs.' },
+    ]) {
+      expect(() =>
+        validatePresetOptions({ agentEndpoints: { agentSkill } }),
+      ).not.toThrow();
+    }
+    expect(
+      failure({ agentEndpoints: { agentSkill: { name: 'My Docs' } } }),
+    ).toContain('`agentEndpoints.agentSkill.name`');
+    expect(
+      failure({ agentEndpoints: { agentSkill: { description: '' } } }),
+    ).toContain('`agentEndpoints.agentSkill.description`');
+    expect(failure({ agentEndpoints: { agentSkill: true } })).toContain(
+      '`agentEndpoints.agentSkill`',
+    );
+  });
+
   it('accepts indexPointer as a boolean or an instruction line (S3.2.3)', () => {
     for (const indexPointer of [true, false, 'Start at the index.']) {
       expect(() =>

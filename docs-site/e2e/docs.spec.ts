@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import { compileBranding } from '@pokedocs/theme';
 
@@ -154,6 +155,38 @@ test('every twin points at llms.txt, the corpus does not (S3.2.3)', async ({
   for (const body of bodies) {
     expect(body.startsWith('> **Documentation index:**')).toBe(false);
   }
+});
+
+test('well-known discovery files resolve and verify (S3.2.1)', async ({
+  page,
+}) => {
+  const res = await page.request.get('./.well-known/agent-skills/index.json');
+  expect(res.status()).toBe(200);
+  const index = await res.json();
+  expect(index.$schema).toBe(
+    'https://schemas.agentskills.io/discovery/0.2.0/schema.json',
+  );
+  const [skill] = index.skills;
+  expect(skill).toMatchObject({ name: 'pokedocs', type: 'skill-md' });
+
+  // What a client does: resolve url against the index URL, then verify.
+  const skillUrl = new URL(skill.url, res.url()).toString();
+  const bytes = await (await page.request.get(skillUrl)).body();
+  const digest = createHash('sha256').update(bytes).digest('hex');
+  expect(skill.digest).toBe(`sha256:${digest}`);
+  const text = bytes.toString('utf8');
+  expect(text).toMatch(/^---\nname: pokedocs\ndescription: /);
+  expect(text).toContain('/pokedocs/llms.txt');
+
+  const manifest = await (
+    await page.request.get('./.well-known/pokedocs.json')
+  ).json();
+  expect(manifest.pokedocs).toBe(1);
+  expect(manifest.artifacts.agentSkills).toMatch(
+    /\/pokedocs\/\.well-known\/agent-skills\/index\.json$/,
+  );
+  const pages = await (await page.request.get('./pages.json')).json();
+  expect(pages.pages[0].path).toMatch(/^\/pokedocs\//);
 });
 
 test('discovery links point at the agent surface (S1.5.3)', async ({ page }) => {

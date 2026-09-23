@@ -36,8 +36,10 @@ jobs:
       - run: pnpm --filter docs-site exec playwright install --with-deps chromium
       - run: pnpm build
       - run: pnpm --filter docs-site build
-      - uses: actions/upload-pages-artifact@v3
+      # v4+ drops dotfiles by default; .well-known/ (agent discovery) must ship
+      - uses: actions/upload-pages-artifact@v5
         with:
+          include-hidden-files: true
           path: docs-site/build
 
   deploy:

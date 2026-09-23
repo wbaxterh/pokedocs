@@ -44,8 +44,10 @@ jobs:
       # Mermaid renders at build time via chromium
       - run: npx playwright install --with-deps chromium
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+      # v4+ drops dotfiles by default; .well-known/ (agent discovery) must ship
+      - uses: actions/upload-pages-artifact@v5
         with:
+          include-hidden-files: true
           path: build
 
   deploy:

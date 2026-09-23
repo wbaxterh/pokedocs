@@ -59,7 +59,7 @@ That trade is the market gap. **PokeDocs' positioning: everything ElizaOS left D
 | Per-page `.md` twins | Community plugin | Plugin | ✅ Prerendered | ✅ (server-side) | ✅ Static files |
 | MCP for docs | Community plugin | ✗ | ✗ | ✅ Hosted | ✅ Static-compatible |
 | HTTP discovery (`Link` headers, `Accept: text/markdown`) | ✗ | ✗ | Partial | ✅ (server-side) | ✅ Generated host config |
-| Agent-skill / agent-card discovery | ✗ | ✗ | ✗ | ✅ Automatic | ✅ Static `.well-known` |
+| Agent-skill discovery (`.well-known`) | ✗ | ✗ | ✗ | ✅ Automatic | ✅ Static `.well-known` |
 | Build-time mermaid (SVG in HTML) | ✗ (open since 2022) | ✗ | ✗ | Partial | ✅ Default |
 | Config-only branding | ✗ (CSS ladder) | Partial | Partial | ✅ (`docs.json`) | ✅ Schema-validated |
 | Docs-drift CI | ✗ | ✗ | ✗ | Proprietary agents | ✅ OSS templates |
@@ -375,7 +375,7 @@ Goal: from "agents can read it" to "agents are first-class users" — and take t
 #### F3.2 Discovery surface
 - **S3.2.1 — Well-known discovery files**
   *As P4, I want an enumerated set of discovery artifacts, named to the conventions agents already probe for, so that tools can auto-configure against any PokeDocs site without learning a PokeDocs-specific layout.*
-  Acceptance: every build statically emits `/.well-known/agent-skills/index.json` (agentskills.io discovery schema 0.2.0, each entry carrying a `sha256` digest of its file), the skill it lists at `/.well-known/agent-skills/<name>/skill.md` (generated from site config and frontmatter, overridable by a hand-written file), `/.well-known/agent-card.json` (A2A card: name, description, documentation URL, the skill list), `/.well-known/pokedocs.json` (site manifest: name, version, routes to llms/index artifacts), and the full JSON site index (routes, titles, validated metadata; extends the S2.2.2 seed); `/.well-known/mcp/server-card.json` is emitted only when an MCP endpoint is configured (S3.3.2/S3.3.3), never pointing at nothing; each format documented with its schema; filenames stable and versioned in the manifest; `ingest: false` pages absent from all of them.
+  Acceptance: every build statically emits `/.well-known/agent-skills/index.json` (agentskills.io discovery RFC v0.2.0: `$schema`, and per skill `name`, `type: "skill-md"`, `description`, `url`, and a `sha256:` digest of the artifact's raw bytes), the skill it lists at `/.well-known/agent-skills/<name>/SKILL.md` (generated from site config and the page index, replaced wholesale by a hand-written file at the same path in `static/`), `/.well-known/pokedocs.json` (site manifest: name, version, absolute URLs of every agent artifact), and the full JSON site index (`pages.json`: routes, titles, validated metadata; extends the S2.2.2 seed); no artifact advertises an endpoint that does not exist, so the A2A `agent-card.json` is not emitted (its `supportedInterfaces` promise a live A2A server) and `mcp/server-card.json` belongs to S3.3.3; artifact URLs are rooted at `baseUrl`, and the host-root limitation of `.well-known` under a sub-path `baseUrl` is documented; each format documented with its fields; filenames stable and versioned in the manifest; `ingest: false` pages absent from all of them.
 - **S3.2.2 — Discovery-conventions ADR**
   *As the maintainer, I want a written compatibility stance on emerging agent-discovery conventions (Mintlify skill.md, agent-card patterns, llms.txt evolution), so that S3.2.1's artifact set tracks the ecosystem deliberately instead of ad hoc.*
   Acceptance: ADR published in the repo naming which conventions we emit, which we watch, and the review cadence.
@@ -395,7 +395,7 @@ Goal: from "agents can read it" to "agents are first-class users" — and take t
   Acceptance: MCP server exposes exactly two tools over a built site directory: `search` (ranked hits with title, path, and snippet) and a read-only filesystem query (`ls`, `cat`, `head`, `grep` over a virtual tree of the `.md` twins, with no access to anything outside it); tool descriptions tell the agent how the two compose (search, then read the path); every tool marked `readOnlyHint`; works pointed at any PokeDocs build output; stdio and streamable HTTP transports; explicitly optional.
 - **S3.3.3 — Edge-hosted MCP template**
   *As P1, I want `pokedocs deploy init mcp-worker` to generate a Cloudflare Worker that serves the S3.3.2 tools from my built artifacts, so that my readers get a public MCP endpoint without me running a server.*
-  Acceptance: the Worker reads the same build output as S3.3.2 and shares its tool implementations (one codebase, two transports); fits the free tier for a 200-page site; the generated config sets the endpoint URL that S3.2.1 writes into `mcp/server-card.json`; verified by connecting Claude Code to a deployed Worker.
+  Acceptance: the Worker reads the same build output as S3.3.2 and shares its tool implementations (one codebase, two transports); fits the free tier for a 200-page site; the build emits `/.well-known/mcp/server-card.json` describing the deployed endpoint and its tools, only when that endpoint is configured; verified by connecting Claude Code to a deployed Worker.
 
 #### F3.4 Upstream: native markdown emission (the one fork-level item)
 - **S3.4.1 — Spike: markdown emission inside the SSG pipeline**
