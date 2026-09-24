@@ -1,5 +1,46 @@
 # @pokedocs/preset
 
+## 0.4.0
+
+### Minor Changes
+
+- [#89](https://github.com/wbaxterh/pokedocs/pull/89) [`cbeb4fe`](https://github.com/wbaxterh/pokedocs/commit/cbeb4fef81790f633935ca8d621acbd1699b22e2) Thanks [@wbaxterh](https://github.com/wbaxterh)! - Well-known discovery files on every build (S3.2.1).
+
+  - `/.well-known/agent-skills/index.json` per the agent-skills discovery RFC v0.2.0, with a
+    `sha256:` digest of the listed skill, and the skill itself at
+    `/.well-known/agent-skills/<name>/SKILL.md`: when to use it, the fetch order for this site,
+    and its page list. A hand-written `SKILL.md` at that path in `static/` replaces the
+    generated one, and the index takes its description from it.
+  - `/.well-known/pokedocs.json`: a versioned manifest with the absolute URL of every agent
+    artifact.
+  - `pages.json` entries gain a `path` (the route).
+  - New option `agentEndpoints.agentSkill: { name?, description? } | false`, validated by the
+    preset against the agent-skills naming rules.
+
+  `pokedocs deploy init github-pages` now writes `actions/upload-pages-artifact@v5` with
+  `include-hidden-files: true`. From v4 the action drops dot-directories by default, which
+  would silently strip `.well-known/` from the deploy.
+
+- [#87](https://github.com/wbaxterh/pokedocs/pull/87) [`cb5b9a6`](https://github.com/wbaxterh/pokedocs/commit/cb5b9a6a8112efb17c574cf66b42c3852a9477b9) Thanks [@wbaxterh](https://github.com/wbaxterh)! - Every `.md` twin now opens with a pointer to the site's `llms.txt` (S3.2.3).
+
+  Agents usually land on one twin from a search result or a pasted link and never see the
+  HTML `<link rel>` tags, so the twin itself now names the index:
+
+  ```md
+  > **Documentation index:** https://your.site/llms.txt
+  > Use this file to discover all available pages before exploring further.
+  ```
+
+  On by default. `agentEndpoints.indexPointer: false` removes it; a string replaces the second
+  line. It never appears in `llms-full.txt`, and it is skipped with a build warning while the
+  site `url` is a placeholder. The placeholder-URL check now lives in the plugin
+  (`isPlaceholderUrl`) and the preset's URL guard reuses it.
+
+### Patch Changes
+
+- Updated dependencies [[`cbeb4fe`](https://github.com/wbaxterh/pokedocs/commit/cbeb4fef81790f633935ca8d621acbd1699b22e2), [`11166d6`](https://github.com/wbaxterh/pokedocs/commit/11166d67972e26ea81759bc39e396bfea4cd4ccd), [`cb5b9a6`](https://github.com/wbaxterh/pokedocs/commit/cb5b9a6a8112efb17c574cf66b42c3852a9477b9)]:
+  - @pokedocs/plugin-agent-endpoints@0.3.0
+
 ## 0.3.0
 
 ### Minor Changes
