@@ -159,6 +159,41 @@ export function agentSkillsIndex(
 }
 
 /**
+ * The agent artifacts every build emits, in one list, so the manifest
+ * (S3.2.1) and the generated HTTP `Link` headers (S3.2.4) cannot disagree.
+ * `rel` values follow the ones hosted docs platforms already send.
+ */
+export const AGENT_ARTIFACTS = [
+  { key: 'llmsTxt', rel: 'llms-txt', file: 'llms.txt' },
+  { key: 'llmsFullTxt', rel: 'llms-full-txt', file: 'llms-full.txt' },
+  { key: 'pagesJson', rel: null, file: 'pages.json' },
+  {
+    key: 'agentSkills',
+    rel: 'agent-skills',
+    file: '.well-known/agent-skills/index.json',
+  },
+  { key: 'manifest', rel: 'describedby', file: '.well-known/pokedocs.json' },
+] as const;
+
+/**
+ * Value of the `Link` response header advertising the agent surface, with
+ * targets rooted at `baseUrl`. Pass `agentSkills: false` for sites that
+ * turned the skill off, so no link points at a missing file.
+ */
+export function agentLinkHeader(
+  baseUrl: string,
+  options: { agentSkills?: boolean } = {},
+): string {
+  return AGENT_ARTIFACTS.filter(
+    (artifact) =>
+      artifact.rel !== null &&
+      (artifact.key !== 'agentSkills' || options.agentSkills !== false),
+  )
+    .map((artifact) => `<${baseUrl}${artifact.file}>; rel="${artifact.rel}"`)
+    .join(', ');
+}
+
+/**
  * /.well-known/pokedocs.json: one fetch tells a tool where every agent
  * artifact lives. URLs are absolute; `pokedocs` versions the format.
  */
@@ -177,12 +212,13 @@ export function pokedocsManifest(
     },
     pages: options.pageCount,
     artifacts: {
-      llmsTxt: `${root}llms.txt`,
-      llmsFullTxt: `${root}llms-full.txt`,
-      pagesJson: `${root}pages.json`,
-      ...(options.agentSkills
-        ? { agentSkills: `${root}.well-known/agent-skills/index.json` }
-        : {}),
+      ...Object.fromEntries(
+        AGENT_ARTIFACTS.filter(
+          (artifact) =>
+            artifact.key !== 'manifest' &&
+            (artifact.key !== 'agentSkills' || options.agentSkills),
+        ).map((artifact) => [artifact.key, `${root}${artifact.file}`]),
+      ),
       markdownTwins: 'every page URL + ".md"; the root page is index.md',
     },
   };

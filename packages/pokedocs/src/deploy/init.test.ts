@@ -3,7 +3,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { DEPLOY_TARGETS, runDeployInit } from './init.js';
-import { normalizeBaseUrl, parseBaseUrl } from './targets.js';
+import {
+  normalizeBaseUrl,
+  parseAgentSkillOff,
+  parseBaseUrl,
+} from './targets.js';
 
 const tempDirs: string[] = [];
 
@@ -28,6 +32,9 @@ describe('S1.7.1 — deploy init plumbing', () => {
     expect(DEPLOY_TARGETS.map((t) => t.name)).toEqual([
       'github-pages',
       'docker',
+      'netlify',
+      'cloudflare-pages',
+      'vercel',
     ]);
     for (const target of DEPLOY_TARGETS) {
       expect(typeof target.files).toBe('function');
@@ -36,8 +43,8 @@ describe('S1.7.1 — deploy init plumbing', () => {
   });
 
   it('names available targets on an unknown target', async () => {
-    await expect(runDeployInit('vercel', await siteDir())).rejects.toThrow(
-      /unknown deploy target "vercel"[\s\S]*github-pages[\s\S]*docker/,
+    await expect(runDeployInit('heroku', await siteDir())).rejects.toThrow(
+      /unknown deploy target "heroku"[\s\S]*github-pages[\s\S]*docker[\s\S]*cloudflare-pages/,
     );
   });
 
@@ -125,6 +132,71 @@ describe('S1.7.2 — docker target', () => {
     await runDeployInit('docker', dir, { baseUrl: '/override/' });
     const nginx = await readFile(path.join(dir, 'nginx.conf'), 'utf8');
     expect(nginx).toContain('location /override/ {');
+  });
+});
+
+describe('S3.2.4 — HTTP discovery', () => {
+  const LINK =
+    '</my-docs/llms.txt>; rel="llms-txt", </my-docs/llms-full.txt>; rel="llms-full-txt", </my-docs/.well-known/agent-skills/index.json>; rel="agent-skills", </my-docs/.well-known/pokedocs.json>; rel="describedby"';
+
+  it('nginx sends the Link header and negotiates markdown before location matching', async () => {
+    const dir = await siteDir('/my-docs/');
+    await runDeployInit('docker', dir);
+    const nginx = await readFile(path.join(dir, 'nginx.conf'), 'utf8');
+    expect(nginx).toContain(`add_header Link '${LINK}' always;`);
+    expect(nginx).toContain('add_header Vary Accept always;');
+    expect(nginx).toContain('"~*text/markdown" 1;');
+    expect(nginx).toContain('"1:/my-docs/" /my-docs/index.md;');
+    // Server-level rewrite, guarded by the twin existing on disk.
+    expect(nginx).toMatch(
+      /if \(-f \$document_root\$pokedocs_twin\) \{\n\s+rewrite \^ \$pokedocs_twin last;/,
+    );
+    expect(nginx).toContain('location ~ \\.md$ {');
+    expect(nginx).toContain('default_type text/markdown;');
+    expect(nginx).toContain('absolute_redirect off;');
+  });
+
+  it('Netlify and Cloudflare Pages share one static/_headers file', async () => {
+    const dir = await siteDir('/my-docs/');
+    const netlify = await runDeployInit('netlify', dir);
+    expect(netlify.written).toEqual(['static/_headers']);
+    const headers = await readFile(path.join(dir, 'static/_headers'), 'utf8');
+    expect(headers).toContain(`/my-docs/*\n  Link: ${LINK}\n`);
+    expect(headers).not.toContain('Vary');
+    // Same content, so the second target does not need --force.
+    const cloudflare = await runDeployInit('cloudflare-pages', dir);
+    expect(cloudflare.written).toEqual(['static/_headers']);
+  });
+
+  it('Vercel gets the header in vercel.json', async () => {
+    const dir = await siteDir('/my-docs/');
+    await runDeployInit('vercel', dir);
+    const config = JSON.parse(
+      await readFile(path.join(dir, 'vercel.json'), 'utf8'),
+    );
+    expect(config.headers).toEqual([
+      { source: '/my-docs/(.*)', headers: [{ key: 'Link', value: LINK }] },
+    ]);
+  });
+
+  it('drops the agent-skills link when the config turns the skill off', async () => {
+    const dir = await siteDir();
+    const configPath = path.join(dir, 'docusaurus.config.ts');
+    const source = await readFile(configPath, 'utf8');
+    await writeFile(
+      configPath,
+      source.replace(
+        '};\nexport',
+        '  agentEndpoints: { agentSkill: false },\n};\nexport',
+      ),
+    );
+    await runDeployInit('netlify', dir);
+    const headers = await readFile(path.join(dir, 'static/_headers'), 'utf8');
+    expect(headers).not.toContain('rel="agent-skills"');
+    expect(headers).toContain('rel="describedby"');
+    expect(parseAgentSkillOff('agentSkill: false')).toBe(true);
+    expect(parseAgentSkillOff('myagentSkill: false')).toBe(false);
+    expect(parseAgentSkillOff("agentSkill: { name: 'x' }")).toBe(false);
   });
 });
 

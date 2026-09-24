@@ -347,7 +347,9 @@ export default function pluginAgentEndpoints(
 }
 
 export {
+  AGENT_ARTIFACTS,
   AGENT_SKILLS_SCHEMA,
+  agentLinkHeader,
   agentSkillsIndex,
   frontmatterDescription,
   isValidSkillName,

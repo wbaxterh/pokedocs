@@ -8,10 +8,26 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { dockerTarget } from './docker.js';
 import { githubPagesTarget } from './github-pages.js';
+import {
+  cloudflarePagesTarget,
+  netlifyTarget,
+  vercelTarget,
+} from './static-hosts.js';
 import type { DeployInitContext, DeployTarget } from './targets.js';
-import { findSiteConfig, normalizeBaseUrl, parseBaseUrl } from './targets.js';
+import {
+  findSiteConfig,
+  normalizeBaseUrl,
+  parseAgentSkillOff,
+  parseBaseUrl,
+} from './targets.js';
 
-export const DEPLOY_TARGETS: DeployTarget[] = [githubPagesTarget, dockerTarget];
+export const DEPLOY_TARGETS: DeployTarget[] = [
+  githubPagesTarget,
+  dockerTarget,
+  netlifyTarget,
+  cloudflarePagesTarget,
+  vercelTarget,
+];
 
 export class DeployInitError extends Error {}
 
@@ -29,7 +45,7 @@ export interface DeployInitResult {
 
 export function targetList(): string {
   return DEPLOY_TARGETS.map(
-    (t) => `  ${t.name.padEnd(14)}${t.description}`,
+    (t) => `  ${t.name.padEnd(18)}${t.description}`,
   ).join('\n');
 }
 
@@ -52,14 +68,13 @@ export async function runDeployInit(
     );
   }
 
-  let baseUrl = flags.baseUrl;
-  if (baseUrl === undefined) {
-    baseUrl = parseBaseUrl(await readFile(configFile, 'utf8')) ?? '/';
-  }
+  const configSource = await readFile(configFile, 'utf8');
+  const baseUrl = flags.baseUrl ?? parseBaseUrl(configSource) ?? '/';
   const context: DeployInitContext = {
     siteDir,
     baseUrl: normalizeBaseUrl(baseUrl),
     domain: flags.domain,
+    agentSkills: !parseAgentSkillOff(configSource),
   };
 
   const files = target.files(context);

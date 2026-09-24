@@ -107,7 +107,11 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(playwright@1.61.1)
 
-  packages/pokedocs: {}
+  packages/pokedocs:
+    dependencies:
+      '@pokedocs/plugin-agent-endpoints':
+        specifier: workspace:*
+        version: link:../plugin-agent-endpoints
 
   packages/preset:
     dependencies:
