@@ -15,6 +15,8 @@ export interface DeployInitContext {
   baseUrl: string;
   /** Custom domain (github-pages): writes static/CNAME. */
   domain?: string;
+  /** False when the site config sets `agentSkill: false` (no index to link). */
+  agentSkills?: boolean;
 }
 
 export interface EmittedFile {
@@ -58,6 +60,14 @@ export async function findSiteConfig(siteDir: string): Promise<string | null> {
 export function parseBaseUrl(configSource: string): string | null {
   const match = configSource.match(/baseUrl:[^\n]*?['"`]([^'"`]*)['"`]/);
   return match ? match[1] : null;
+}
+
+/**
+ * Best-effort, like parseBaseUrl: true when the config turns the agent
+ * skill off, so generated Link headers don't point at a missing index.
+ */
+export function parseAgentSkillOff(configSource: string): boolean {
+  return /\bagentSkill:\s*false\b/.test(configSource);
 }
 
 /** Normalize to leading+trailing slash form ('/', '/my-docs/'). */

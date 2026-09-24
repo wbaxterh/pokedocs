@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
+  AGENT_ARTIFACTS,
   AGENT_SKILLS_SCHEMA,
+  agentLinkHeader,
   agentSkillsIndex,
   frontmatterDescription,
   isValidSkillName,
@@ -158,6 +160,34 @@ describe('pokedocs.json (S3.2.1)', () => {
       agentSkills:
         'https://wbaxterh.github.io/pokedocs/.well-known/agent-skills/index.json',
     });
+  });
+
+  it('links every manifest artifact that has a rel, and the manifest itself (S3.2.4)', () => {
+    const manifest = JSON.parse(
+      pokedocsManifest(SITE, {
+        generator: 'g',
+        pageCount: 1,
+        agentSkills: true,
+      }),
+    );
+    const link = agentLinkHeader('/pokedocs/');
+    for (const artifact of AGENT_ARTIFACTS) {
+      if (artifact.rel === null) {
+        expect(link).not.toContain(artifact.file);
+        continue;
+      }
+      expect(link).toContain(
+        `</pokedocs/${artifact.file}>; rel="${artifact.rel}"`,
+      );
+      if (artifact.key !== 'manifest') {
+        expect(manifest.artifacts[artifact.key]).toBe(
+          `https://wbaxterh.github.io/pokedocs/${artifact.file}`,
+        );
+      }
+    }
+    expect(agentLinkHeader('/', { agentSkills: false })).not.toContain(
+      'agent-skills',
+    );
   });
 
   it('omits agentSkills when the skill is off', () => {

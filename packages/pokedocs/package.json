@@ -25,6 +25,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {
+    "@pokedocs/plugin-agent-endpoints": "workspace:*"
+  },
   "engines": {
     "node": ">=20"
   }
