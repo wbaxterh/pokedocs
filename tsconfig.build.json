@@ -8,6 +8,7 @@
     { "path": "packages/plugin-mermaid-ssr" },
     { "path": "packages/plugin-agent-endpoints" },
     { "path": "packages/plugin-frontmatter-schema" },
+    { "path": "packages/mcp" },
     { "path": "packages/actions" }
   ]
 }

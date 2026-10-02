@@ -10,6 +10,7 @@ import { type CheckFormat, formatSummary } from './check/format.js';
 import { runCheck } from './check/index.js';
 import { DeployInitError, runDeployInit, targetList } from './deploy/init.js';
 import { COMMANDS } from './index.js';
+import { MCP_USAGE, runMcpCommand } from './mcp.js';
 
 const DEPLOY_USAGE = `Usage: pokedocs deploy init <target> [options]
 
@@ -149,6 +150,10 @@ export async function runCli(argv: string[]): Promise<number> {
     return runCheckCommand(argv.slice(1));
   }
 
+  if (command === 'mcp') {
+    return runMcpCommand(argv.slice(1));
+  }
+
   if (command === 'deploy') {
     if (subcommand !== 'init') {
       console.error(DEPLOY_USAGE);
@@ -165,7 +170,7 @@ export async function runCli(argv: string[]): Promise<number> {
   }
 
   console.error(
-    `pokedocs — agent-native docs tooling.\n\nCommands:\n  check [site-dir]       lint docs for what a green build won't catch\n  deploy init <target>   scaffold deploy artifacts\n  export, mcp            coming with their milestones\n\n${DEPLOY_USAGE}\n${CHECK_USAGE}`,
+    `pokedocs — agent-native docs tooling.\n\nCommands:\n  check [site-dir]       lint docs for what a green build won't catch\n  deploy init <target>   scaffold deploy artifacts\n  mcp [build-dir]        serve the built docs to agents over MCP (optional)\n  export                 coming with its milestone\n\n${DEPLOY_USAGE}\n${CHECK_USAGE}\n${MCP_USAGE}`,
   );
   return 1;
 }

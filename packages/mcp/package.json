@@ -1,18 +1,15 @@
 {
-  "name": "pokedocs",
-  "version": "0.2.1",
-  "description": "PokeDocs CLI — check, export, deploy init, mcp",
+  "name": "@pokedocs/mcp",
+  "version": "0.0.0",
+  "description": "Optional MCP server for a built PokeDocs site: search and a read-only filesystem over the markdown twins, over stdio or streamable HTTP",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/wbaxterh/pokedocs.git",
-    "directory": "packages/pokedocs"
+    "directory": "packages/mcp"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "pokedocs": "./dist/cli.js"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -25,13 +22,14 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "@pokedocs/plugin-agent-endpoints": "workspace:*"
-  },
-  "devDependencies": {
-    "@pokedocs/mcp": "workspace:*"
-  },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.2.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "^2.2.0"
   }
 }
