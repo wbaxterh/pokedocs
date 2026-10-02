@@ -33,6 +33,20 @@ export const SCAFFOLD_DEFAULTS = {
 
 class ScaffoldError extends Error {}
 
+/**
+ * The preset version to pin in a new site. Changesets releases this package
+ * and @pokedocs/preset as a fixed group (.changeset/config.json), so our own
+ * version is the preset version the template was built and tested with.
+ * A literal pin went stale: `^0.1.0` never matches 0.2+ under semver.
+ */
+export async function presetVersion(): Promise<string> {
+  const manifest = await readFile(
+    path.join(__dirname, '..', 'package.json'),
+    'utf8',
+  );
+  return (JSON.parse(manifest) as { version: string }).version;
+}
+
 /** npm-safe package name from the target directory's basename. */
 function packageNameFor(directory: string): string {
   const name = path
@@ -177,6 +191,7 @@ export async function scaffold(
     LOGO_PATH: logoPath,
     URL: url,
     BASE_URL: baseUrl,
+    PRESET_VERSION: await presetVersion(),
   };
 
   await assertTargetUsable(directory);
