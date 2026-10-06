@@ -1,6 +1,6 @@
 {
   "name": "@pokedocs/mcp",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Optional MCP server for a built PokeDocs site: search and a read-only filesystem over the markdown twins, over stdio or streamable HTTP",
   "license": "MIT",
   "repository": {
