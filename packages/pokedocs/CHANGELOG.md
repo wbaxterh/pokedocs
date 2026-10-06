@@ -1,5 +1,61 @@
 # pokedocs
 
+## 0.3.0
+
+### Minor Changes
+
+- [#89](https://github.com/wbaxterh/pokedocs/pull/89) [`cbeb4fe`](https://github.com/wbaxterh/pokedocs/commit/cbeb4fef81790f633935ca8d621acbd1699b22e2) Thanks [@wbaxterh](https://github.com/wbaxterh)! - Well-known discovery files on every build (S3.2.1).
+
+  - `/.well-known/agent-skills/index.json` per the agent-skills discovery RFC v0.2.0, with a
+    `sha256:` digest of the listed skill, and the skill itself at
+    `/.well-known/agent-skills/<name>/SKILL.md`: when to use it, the fetch order for this site,
+    and its page list. A hand-written `SKILL.md` at that path in `static/` replaces the
+    generated one, and the index takes its description from it.
+  - `/.well-known/pokedocs.json`: a versioned manifest with the absolute URL of every agent
+    artifact.
+  - `pages.json` entries gain a `path` (the route).
+  - New option `agentEndpoints.agentSkill: { name?, description? } | false`, validated by the
+    preset against the agent-skills naming rules.
+
+  `pokedocs deploy init github-pages` now writes `actions/upload-pages-artifact@v5` with
+  `include-hidden-files: true`. From v4 the action drops dot-directories by default, which
+  would silently strip `.well-known/` from the deploy.
+
+- [#91](https://github.com/wbaxterh/pokedocs/pull/91) [`11166d6`](https://github.com/wbaxterh/pokedocs/commit/11166d67972e26ea81759bc39e396bfea4cd4ccd) Thanks [@wbaxterh](https://github.com/wbaxterh)! - HTTP discovery for generated host configs (S3.2.4).
+
+  - Every `deploy init` target that can set response headers now sends a `Link` header
+    advertising `llms.txt`, `llms-full.txt`, the agent-skills index, and `pokedocs.json`.
+    New targets: `netlify` and `cloudflare-pages` (both write `static/_headers`) and `vercel`
+    (writes `vercel.json`). The link targets come from the plugin's `AGENT_ARTIFACTS` list,
+    the same one `pokedocs.json` is built from, and the agent-skills link is left out when the
+    config sets `agentSkill: false`.
+  - The `docker` target's nginx conf negotiates: `Accept: text/markdown` on a page URL returns
+    its `.md` twin with `Content-Type: text/markdown; charset=utf-8` and `Vary: Accept`. The
+    twin is served only when it exists, so browsers, assets, and `llms.txt` are unaffected.
+    Direct `.md` requests get the same content type.
+  - Fix: the docker target's slash redirect (`/page` to `/page/`) no longer names the
+    container's internal port in `Location`, which broke navigation behind any port mapping
+    or proxy (`absolute_redirect off`).
+
+  Netlify, Cloudflare Pages, and Vercel cannot negotiate from static config; that is S3.2.5.
+
+- [#93](https://github.com/wbaxterh/pokedocs/pull/93) [`1e3ce35`](https://github.com/wbaxterh/pokedocs/commit/1e3ce359f9d18c9d43cf6acb93e240ba8c76c7c8) Thanks [@wbaxterh](https://github.com/wbaxterh)! - `pokedocs mcp`: serve a built site to AI agents over MCP (S3.3.2).
+
+  New optional package `@pokedocs/mcp`, built on the MCP TypeScript SDK v2. It loads any PokeDocs
+  build output and exposes exactly two read-only tools: `search_docs` (BM25 ranking over title,
+  description, headings, and body, with path, URL, and snippet) and `query_docs_filesystem`
+  (`ls`, `cat`, `head -n`, `grep -i -l` over an in-memory tree of the `.md` twins, so no command
+  can reach a real file). Serves stdio, or streamable HTTP at `/mcp` with Host and Origin checks
+  on loopback against DNS rebinding.
+
+  `pokedocs mcp [build-dir] [--http --port --host --allowed-host]` loads the package on demand
+  and prints the install command when it is missing, so the CLI does not carry the SDK.
+
+### Patch Changes
+
+- Updated dependencies [[`cbeb4fe`](https://github.com/wbaxterh/pokedocs/commit/cbeb4fef81790f633935ca8d621acbd1699b22e2), [`11166d6`](https://github.com/wbaxterh/pokedocs/commit/11166d67972e26ea81759bc39e396bfea4cd4ccd), [`cb5b9a6`](https://github.com/wbaxterh/pokedocs/commit/cb5b9a6a8112efb17c574cf66b42c3852a9477b9)]:
+  - @pokedocs/plugin-agent-endpoints@0.3.0
+
 ## 0.2.1
 
 ### Patch Changes
