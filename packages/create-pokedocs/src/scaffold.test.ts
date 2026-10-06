@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { parseCliArgs } from './cli.js';
-import { scaffold } from './scaffold.js';
+import { presetVersion, scaffold } from './scaffold.js';
 
 const tempDirs: string[] = [];
 
@@ -133,6 +133,34 @@ describe('S1.1.1 — scaffold a docs-only site', () => {
         yes: true,
       }),
     ).rejects.toThrow(/expected a hex color/);
+  });
+});
+
+describe('preset pin', () => {
+  const repoRoot = path.join(__dirname, '..', '..', '..');
+
+  it('pins the preset at the version released alongside this scaffolder', async () => {
+    const target = await tempTarget();
+    await scaffold({ directory: target, yes: true });
+    const site = JSON.parse(
+      await readFile(path.join(target, 'package.json'), 'utf8'),
+    );
+    const own = JSON.parse(
+      await readFile(path.join(__dirname, '..', 'package.json'), 'utf8'),
+    );
+    expect(site.dependencies['@pokedocs/preset']).toBe(`^${own.version}`);
+    expect(await presetVersion()).toBe(own.version);
+  });
+
+  it('relies on changesets releasing preset and scaffolder as a fixed group', async () => {
+    // Without this, the scaffolder's own version stops meaning "the preset
+    // it was tested with", and the pin drifts the way ^0.1.0 did.
+    const config = JSON.parse(
+      await readFile(path.join(repoRoot, '.changeset', 'config.json'), 'utf8'),
+    );
+    expect(config.fixed).toContainEqual(
+      expect.arrayContaining(['@pokedocs/preset', 'create-pokedocs']),
+    );
   });
 });
 
