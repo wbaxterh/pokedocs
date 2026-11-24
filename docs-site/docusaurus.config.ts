@@ -38,6 +38,11 @@ const config: Config = {
           brandColor: '#D8232A',
           logo: 'img/logo-badge.svg',
         },
+        // F5.1 dogfood: diagram colors come from the brand on their own;
+        // this is the per-mode override in use (and what e2e asserts).
+        mermaid: {
+          palette: { dark: { clusterStroke: '#8a8f98' } },
+        },
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/wbaxterh/pokedocs/tree/main/docs-site/',
