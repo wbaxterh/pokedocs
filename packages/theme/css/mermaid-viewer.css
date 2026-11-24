@@ -1,0 +1,144 @@
+/*
+ * The pop-out mermaid viewer (S5.1.1). Ships in the viewer's own chunk.
+ */
+
+/* Infima's light --ifm-background-color is transparent, so the viewer
+   carries its own opaque surface. */
+.pokedocs-mermaid-viewer {
+  --pokedocs-mermaid-surface: #ffffff;
+
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  color: var(--ifm-font-color-base);
+  background: var(--pokedocs-mermaid-surface);
+}
+
+html[data-theme="dark"] .pokedocs-mermaid-viewer {
+  --pokedocs-mermaid-surface: var(--ifm-background-color, #1b1b1d);
+}
+
+.pokedocs-mermaid-viewer::backdrop {
+  background: var(--pokedocs-mermaid-surface);
+}
+
+.pokedocs-mermaid-viewer__frame {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: var(--pokedocs-mermaid-surface);
+}
+
+.pokedocs-mermaid-viewer__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-background-surface-color);
+}
+
+.pokedocs-mermaid-viewer__hint {
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-700);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pokedocs-mermaid-viewer__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.pokedocs-mermaid-viewer__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.5rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ifm-color-emphasis-800);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pokedocs-mermaid-viewer__button:hover {
+  color: var(--ifm-color-primary);
+  background: var(--ifm-color-emphasis-100);
+  border-color: var(--ifm-color-emphasis-300);
+}
+
+.pokedocs-mermaid-viewer__button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.pokedocs-mermaid-viewer__percent {
+  min-width: 3.75rem;
+}
+
+.pokedocs-mermaid-viewer__close {
+  margin-left: 0.5rem;
+}
+
+.pokedocs-mermaid-viewer__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  background-color: var(--pokedocs-mermaid-surface);
+  background-image: radial-gradient(
+    var(--ifm-color-emphasis-200) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+}
+
+.pokedocs-mermaid-viewer__stage--dragging {
+  cursor: grabbing;
+}
+
+.pokedocs-mermaid-viewer__content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+/* The SVG carries an inline max-width from mermaid; the viewer sizes it. */
+.pokedocs-mermaid-viewer__content > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* biome-ignore lint/complexity/noImportantStyles: beats mermaid's inline max-width */
+  max-width: none !important;
+}
+
+@media (max-width: 640px) {
+  .pokedocs-mermaid-viewer__hint {
+    display: none;
+  }
+}
