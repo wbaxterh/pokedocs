@@ -1,0 +1,68 @@
+/*
+ * The inline frame around a build-time mermaid diagram (S5.1.1).
+ * Loaded with @theme/PokedocsMermaid; the viewer has its own stylesheet.
+ */
+
+.pokedocs-mermaid--interactive {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 var(--ifm-leading);
+}
+
+.pokedocs-mermaid__inline {
+  cursor: zoom-in;
+  overflow-x: auto;
+}
+
+.pokedocs-mermaid__inline > svg {
+  display: block;
+}
+
+/* Sits in its own row above the diagram so it never covers a node. */
+.pokedocs-mermaid__expand {
+  order: -1;
+  align-self: flex-end;
+  margin-bottom: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ifm-color-emphasis-800);
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition:
+    opacity 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.pokedocs-mermaid--interactive:hover .pokedocs-mermaid__expand,
+.pokedocs-mermaid__expand:focus-visible {
+  opacity: 1;
+  color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+}
+
+.pokedocs-mermaid__expand:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+@media print {
+  .pokedocs-mermaid__expand {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pokedocs-mermaid__expand {
+    transition: none;
+  }
+}

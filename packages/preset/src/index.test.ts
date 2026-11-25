@@ -84,6 +84,21 @@ describe('S1.2.1 — one preset, fully wired', () => {
     ).toHaveLength(0);
   });
 
+  it('registers the diagram viewer theme after classic, and drops it on mermaid: false (S5.1.1)', () => {
+    const viewerIndex = (opts: Parameters<typeof pokedocsPreset>[1]) => {
+      const { themes } = pokedocsPreset(stubContext(), opts);
+      return (themes ?? []).findIndex(
+        (t) =>
+          typeof t === 'function' &&
+          (t as () => Plugin)().name === 'pokedocs-theme-components',
+      );
+    };
+    // Index 0 is the classic theme: the viewer has to come after it so that
+    // `@theme-init/MDXComponents` resolves to the classic component.
+    expect(viewerIndex({})).toBeGreaterThan(0);
+    expect(viewerIndex({ mermaid: false })).toBe(-1);
+  });
+
   it('omits the search theme on search: false', () => {
     const { themes } = pokedocsPreset(stubContext(), { search: false });
     expect(

@@ -23,7 +23,7 @@ import pluginFrontmatterSchema, {
 import type { MermaidSsrOptions } from '@pokedocs/plugin-mermaid-ssr';
 import { rehypeMermaidSsr } from '@pokedocs/plugin-mermaid-ssr';
 import type { BrandingOptions } from '@pokedocs/theme';
-import { compileBranding } from '@pokedocs/theme';
+import { compileBranding, pokedocsThemeComponents } from '@pokedocs/theme';
 import { checkSiteUrl } from './url-guard.js';
 import { validatePresetOptions } from './validate.js';
 
@@ -100,6 +100,11 @@ export default function pokedocsPreset(
   });
 
   const themes = [...(classic.themes ?? [])];
+  if (options.mermaid !== false) {
+    // S5.1.1: zoom/pan/full-screen on every diagram, no per-site code. After
+    // the classic theme so its MDXComponents is the one being wrapped.
+    themes.push(pokedocsThemeComponents);
+  }
   if (options.search !== false) {
     // Resolved from this package, not the site, so users never install
     // the engine themselves (ADR-0002: activation is the preset's job) —

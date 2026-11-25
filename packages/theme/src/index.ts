@@ -6,6 +6,45 @@
  * no custom.css and no swizzling.
  */
 
+import path from 'node:path';
+import type { Plugin, SwizzleConfig } from '@docusaurus/types';
+
+/**
+ * Directory of reader-facing theme components (`@theme/PokedocsMermaid`, the
+ * `@theme/MDXComponents` wrapper). Docusaurus aliases every file in here.
+ */
+export const THEME_COMPONENTS_PATH = path.join(__dirname, 'client', 'theme');
+
+/**
+ * The Docusaurus theme that turns every build-time mermaid diagram into a
+ * zoom/pan/full-screen viewer (S5.1.1). The preset registers it by default;
+ * register it yourself only when using the packages without the preset, and
+ * list it after the classic theme so it can wrap `@theme/MDXComponents`.
+ */
+export function pokedocsThemeComponents(): Plugin {
+  return {
+    name: 'pokedocs-theme-components',
+    getThemePath: () => THEME_COMPONENTS_PATH,
+  };
+}
+
+// Docusaurus reads the swizzle contract off the plugin module, not the
+// plugin instance.
+pokedocsThemeComponents.getSwizzleConfig = (): SwizzleConfig => ({
+  components: {
+    PokedocsMermaid: {
+      actions: { wrap: 'safe', eject: 'unsafe' },
+      description:
+        'The frame around each build-time mermaid diagram: the Expand button and the zoom/pan viewer.',
+    },
+    MDXComponents: {
+      actions: { wrap: 'unsafe', eject: 'forbidden' },
+      description:
+        'Routes the mermaid wrapper div to PokedocsMermaid. Wrap PokedocsMermaid instead.',
+    },
+  },
+});
+
 export interface BrandingOptions {
   /**
    * Primary brand color (hex). Shade ladders for light/dark modes are
