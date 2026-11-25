@@ -1,0 +1,207 @@
+/*
+ * Diagram palette (S5.1.2).
+ *
+ * Mermaid diagrams are rendered to static SVG at build time with one baked
+ * palette, so both color modes are handled here by recoloring that SVG.
+ *
+ * Every color reads a public `--pokedocs-mermaid-*` variable first and falls
+ * back to a value derived from the site's Infima variables. Those are what
+ * the branding block compiles, and the emphasis scale flips with the color
+ * mode, so the defaults follow the brand in light and dark on their own.
+ * The public variables are never defined here: a site (or the preset's
+ * `mermaid.palette` option) can set them anywhere without a cascade fight.
+ *
+ * Mermaid scopes its own rules as `#mermaid-N .thing`, so an override needs
+ * an id's worth of specificity. `:not(#pdm)` supplies it without
+ * `!important`, which leaves a diagram's own `classDef` / `style` colors
+ * (mermaid emits those as `!important`) in charge of the nodes they color.
+ *
+ * Browsers without color-mix() skip the whole block and keep the baked
+ * palette.
+ */
+
+@supports (color: color-mix(in srgb, red, blue)) {
+  .pokedocs-mermaid {
+    --pdm-bg: #ffffff;
+    --pdm-text: var(--pokedocs-mermaid-text, var(--ifm-font-color-base));
+    --pdm-line: var(--pokedocs-mermaid-line, var(--ifm-color-emphasis-700));
+    --pdm-node-fill: var(
+      --pokedocs-mermaid-node-fill,
+      color-mix(in srgb, var(--ifm-color-primary) 10%, var(--pdm-bg))
+    );
+    --pdm-node-stroke: var(
+      --pokedocs-mermaid-node-stroke,
+      var(--ifm-color-primary)
+    );
+    --pdm-cluster-fill: var(
+      --pokedocs-mermaid-cluster-fill,
+      color-mix(in srgb, var(--ifm-color-emphasis-1000) 4%, var(--pdm-bg))
+    );
+    --pdm-cluster-stroke: var(
+      --pokedocs-mermaid-cluster-stroke,
+      color-mix(in srgb, var(--ifm-color-emphasis-1000) 28%, var(--pdm-bg))
+    );
+    --pdm-label-bg: var(
+      --pokedocs-mermaid-label-background,
+      color-mix(in srgb, var(--ifm-color-emphasis-1000) 8%, var(--pdm-bg))
+    );
+    --pdm-note-fill: var(--pokedocs-mermaid-note-fill, #fff8c5);
+    --pdm-note-stroke: var(--pokedocs-mermaid-note-stroke, #9a7b00);
+    --pdm-note-text: var(--pokedocs-mermaid-note-text, #1c1e21);
+    --pdm-activation: color-mix(
+      in srgb,
+      var(--ifm-color-emphasis-1000) 14%,
+      var(--pdm-bg)
+    );
+  }
+
+  html[data-theme="dark"] .pokedocs-mermaid {
+    --pdm-bg: var(--ifm-background-color, #1b1b1d);
+    --pdm-node-fill: var(
+      --pokedocs-mermaid-node-fill,
+      color-mix(in srgb, var(--ifm-color-primary) 18%, var(--pdm-bg))
+    );
+    --pdm-note-fill: var(--pokedocs-mermaid-note-fill, #3d3814);
+    --pdm-note-stroke: var(--pokedocs-mermaid-note-stroke, #b3a945);
+    --pdm-note-text: var(--pokedocs-mermaid-note-text, #f3eec6);
+  }
+
+  .pokedocs-mermaid svg:not(#pdm) {
+    fill: var(--pdm-text);
+    color: var(--pdm-text);
+  }
+
+  /* Edges and arrowheads, flowchart and sequence */
+  .pokedocs-mermaid svg:not(#pdm)
+    :is(.flowchart-link, .edgePath .path, .messageLine0, .messageLine1) {
+    stroke: var(--pdm-line);
+  }
+
+  .pokedocs-mermaid
+    svg:not(#pdm)
+    :is(
+      .marker,
+      .marker.cross,
+      .arrowheadPath,
+      .arrowMarkerPath,
+      [id$="-arrowhead"] path,
+      [id$="-crosshead"] path,
+      [id$="-filled-head"] path
+    ) {
+    fill: var(--pdm-line);
+    stroke: var(--pdm-line);
+  }
+
+  /* Open (stick) arrowheads are stroke-only; the solid half-heads are filled. */
+  .pokedocs-mermaid svg:not(#pdm) marker > :is(path, polygon, circle, line) {
+    stroke: var(--pdm-line);
+  }
+
+  .pokedocs-mermaid svg:not(#pdm) [id*="solid"][id$="ArrowHead"] path {
+    fill: var(--pdm-line);
+  }
+
+  .pokedocs-mermaid svg:not(#pdm) [id$="-sequencenumber"] {
+    fill: var(--pdm-line);
+  }
+
+  .pokedocs-mermaid svg:not(#pdm) .sequenceNumber {
+    fill: var(--pdm-bg);
+  }
+
+  /* Text */
+  .pokedocs-mermaid svg:not(#pdm)
+    :is(
+      .label,
+      .label text,
+      span,
+      .cluster text,
+      .cluster span,
+      .cluster-label text,
+      .cluster-label span,
+      .flowchartTitleText,
+      .messageText,
+      .labelText,
+      .labelText > tspan,
+      .loopText,
+      .loopText > tspan,
+      .sectionTitle,
+      .sectionTitle > tspan,
+      text.actor > tspan
+    ) {
+    fill: var(--pdm-text);
+    color: var(--pdm-text);
+  }
+
+  /* Flowchart nodes, sequence actors and frames */
+  .pokedocs-mermaid svg:not(#pdm)
+    :is(
+      .node rect,
+      .node circle,
+      .node ellipse,
+      .node polygon,
+      .node path,
+      .actor,
+      .labelBox
+    ) {
+    fill: var(--pdm-node-fill);
+    stroke: var(--pdm-node-stroke);
+  }
+
+  .pokedocs-mermaid svg:not(#pdm) .node .label-icon path {
+    fill: currentColor;
+    stroke: revert;
+  }
+
+  .pokedocs-mermaid svg:not(#pdm) :is(.actor-line, .loopLine) {
+    stroke: var(--pdm-node-stroke);
+  }
+
+  .pokedocs-mermaid
+    svg:not(#pdm)
+    :is(.activation0, .activation1, .activation2) {
+    fill: var(--pdm-activation);
+    stroke: var(--pdm-line);
+  }
+
+  /* Subgraphs */
+  .pokedocs-mermaid svg:not(#pdm) .cluster rect {
+    fill: var(--pdm-cluster-fill);
+    stroke: var(--pdm-cluster-stroke);
+  }
+
+  /* Edge labels */
+  .pokedocs-mermaid svg:not(#pdm) :is(.edgeLabel, .edgeLabel p, .labelBkg) {
+    background-color: var(--pdm-label-bg);
+  }
+
+  .pokedocs-mermaid svg:not(#pdm) .edgeLabel rect {
+    fill: var(--pdm-label-bg);
+    background-color: var(--pdm-label-bg);
+  }
+
+  /* Sequence notes */
+  .pokedocs-mermaid svg:not(#pdm) .note {
+    fill: var(--pdm-note-fill);
+    stroke: var(--pdm-note-stroke);
+  }
+
+  .pokedocs-mermaid svg:not(#pdm) :is(.noteText, .noteText > tspan) {
+    fill: var(--pdm-note-text);
+  }
+
+  /*
+   * A node or subgraph the author colored by hand keeps its fill in both
+   * modes. Those fills are written for a light page, so in dark mode the
+   * label goes back to dark text unless the author set a text color too.
+   */
+  html[data-theme="dark"] .pokedocs-mermaid
+    svg:not(#pdm)
+    :is(.node, .cluster):has(
+      > :is(rect, circle, ellipse, polygon, path)[style*="fill:"]
+    )
+    :is(.label, .label text, span, .cluster-label text, .cluster-label span) {
+    fill: #1d1d1f;
+    color: #1d1d1f;
+  }
+}

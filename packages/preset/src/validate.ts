@@ -5,6 +5,7 @@
  */
 
 import { isValidSkillName } from '@pokedocs/plugin-agent-endpoints';
+import { compileMermaidPalette } from '@pokedocs/theme';
 import type { PokedocsPresetOptions } from './index.js';
 
 const KNOWN_KEYS = [
@@ -22,9 +23,9 @@ const OPTION_HELP: Record<(typeof KNOWN_KEYS)[number], string> = {
   branding: `expected { brandColor: string | { light, dark }, logo?: string | { light, dark }, favicon?: string, font?: string, colorMode?: 'light' | 'dark' | 'system' }
   Example:
     presets: [['@pokedocs/preset', { branding: { brandColor: '#D8232A', logo: 'img/logo.svg' } }]]`,
-  mermaid: `expected a mermaid options object or false (it is on by default; there is no 'true')
+  mermaid: `expected a mermaid options object or false (it is on by default; there is no 'true'). palette is { light?: colors, dark?: colors } or false
   Example:
-    presets: [['@pokedocs/preset', { mermaid: { themeVariables: { primaryColor: '#D8232A' } } }]]`,
+    presets: [['@pokedocs/preset', { mermaid: { palette: { dark: { nodeFill: '#1c2b3f' } } } }]]`,
   agentEndpoints: `expected { llmsTxt?, markdownTwins?, discoveryLinks?: boolean, excludeField?: string, indexPointer?: boolean | string, agentSkill?: { name?, description? } | false } or false
   Example:
     presets: [['@pokedocs/preset', { agentEndpoints: { excludeField: 'ingest' } }]]`,
@@ -180,8 +181,28 @@ export function validatePresetOptions(
     }
   }
 
-  if (mermaid !== undefined && mermaid !== false && !isPlainObject(mermaid)) {
-    problem('mermaid', `got ${show(mermaid)}`);
+  if (mermaid !== undefined && mermaid !== false) {
+    if (!isPlainObject(mermaid)) {
+      problem('mermaid', `got ${show(mermaid)}`);
+    } else if (mermaid.palette !== undefined && mermaid.palette !== false) {
+      if (!isPlainObject(mermaid.palette)) {
+        problem(
+          'mermaid.palette',
+          `expected { light?, dark? } or false, got ${show(mermaid.palette)}`,
+        );
+      } else {
+        try {
+          compileMermaidPalette(mermaid.palette);
+        } catch (error) {
+          problem(
+            'mermaid.palette',
+            (error as Error).message
+              .replace('[@pokedocs/theme] ', '')
+              .replace(/\.$/, ''),
+          );
+        }
+      }
+    }
   }
 
   if (agentEndpoints !== undefined && agentEndpoints !== false) {

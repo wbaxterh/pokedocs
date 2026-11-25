@@ -45,6 +45,26 @@ function brandingHeadTags(
   ) as HeadTag[];
 }
 
+type ThemeEntry = NonNullable<
+  ReturnType<typeof pokedocsPreset>['themes']
+>[number];
+
+function isDiagramTheme(entry: ThemeEntry): boolean {
+  return (
+    Array.isArray(entry) &&
+    typeof entry[0] === 'function' &&
+    (entry[0] as () => Plugin)().name === 'pokedocs-theme-components'
+  );
+}
+
+function diagramThemeOptions(
+  options: Parameters<typeof pokedocsPreset>[1],
+): unknown {
+  const { themes } = pokedocsPreset(stubContext(), options);
+  const entry = (themes ?? []).find(isDiagramTheme) as [unknown, unknown];
+  return entry[1];
+}
+
 describe('S1.2.1 — one preset, fully wired', () => {
   it('activates classic theme, search, docs, and branding from a single entry', () => {
     const result = pokedocsPreset(stubContext(), {
@@ -87,16 +107,58 @@ describe('S1.2.1 — one preset, fully wired', () => {
   it('registers the diagram viewer theme after classic, and drops it on mermaid: false (S5.1.1)', () => {
     const viewerIndex = (opts: Parameters<typeof pokedocsPreset>[1]) => {
       const { themes } = pokedocsPreset(stubContext(), opts);
-      return (themes ?? []).findIndex(
-        (t) =>
-          typeof t === 'function' &&
-          (t as () => Plugin)().name === 'pokedocs-theme-components',
-      );
+      return (themes ?? []).findIndex(isDiagramTheme);
     };
     // Index 0 is the classic theme: the viewer has to come after it so that
     // `@theme-init/MDXComponents` resolves to the classic component.
     expect(viewerIndex({})).toBeGreaterThan(0);
     expect(viewerIndex({ mermaid: false })).toBe(-1);
+  });
+
+  it('recolors diagrams from the brand by default and passes overrides through (S5.1.2)', () => {
+    expect(diagramThemeOptions({})).toEqual({ palette: undefined });
+    expect(
+      diagramThemeOptions({
+        mermaid: { palette: { dark: { nodeFill: '#1c2b3f' } } },
+      }),
+    ).toEqual({ palette: { dark: { nodeFill: '#1c2b3f' } } });
+    expect(diagramThemeOptions({ mermaid: { palette: false } })).toEqual({
+      palette: false,
+    });
+  });
+
+  it('leaves baked colors alone when the site set mermaid theme options (S5.1.2)', () => {
+    // themeVariables / mermaidConfig bake a palette into the SVG; recoloring
+    // over it would silently discard what the site asked for.
+    expect(
+      diagramThemeOptions({
+        mermaid: { themeVariables: { primaryColor: '#D8232A' } },
+      }),
+    ).toEqual({ palette: false });
+    expect(
+      diagramThemeOptions({ mermaid: { mermaidConfig: { theme: 'forest' } } }),
+    ).toEqual({ palette: false });
+    // ...unless the site asks for both.
+    expect(
+      diagramThemeOptions({
+        mermaid: {
+          themeVariables: { primaryColor: '#D8232A' },
+          palette: { dark: { line: '#cccccc' } },
+        },
+      }),
+    ).toEqual({ palette: { dark: { line: '#cccccc' } } });
+  });
+
+  it('keeps the palette option away from the SSR plugin (S5.1.2)', () => {
+    const { plugins } = pokedocsPreset(stubContext(), {
+      mermaid: { preserveSource: true, palette: { dark: { text: '#fff' } } },
+    });
+    const docs = plugins?.find(
+      (p) => Array.isArray(p) && String(p[0]).includes('plugin-content-docs'),
+    ) as [string, { beforeDefaultRehypePlugins: [unknown, unknown][] }];
+    expect(docs[1].beforeDefaultRehypePlugins[0][1]).toEqual({
+      preserveSource: true,
+    });
   });
 
   it('omits the search theme on search: false', () => {
