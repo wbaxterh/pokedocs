@@ -94,7 +94,10 @@ describe('S1.1.1 — scaffold a docs-only site', () => {
       path.join(target, 'docusaurus.config.ts'),
       'utf8',
     );
-    expect(config).toContain("title: 'Helio Docs'");
+    // The name is bound to a const and reused, rather than interpolated into
+    // each quoted position, so that free text cannot break the syntax.
+    expect(config).toContain('const siteName = "Helio Docs";');
+    expect(config).toContain('title: siteName');
     expect(config).toContain("brandColor: '#FF6B35'");
     const logo = await readFile(
       path.join(target, 'static/img/logo.svg'),
@@ -133,6 +136,86 @@ describe('S1.1.1 — scaffold a docs-only site', () => {
         yes: true,
       }),
     ).rejects.toThrow(/expected a hex color/);
+  });
+});
+
+describe('free text in the site name and tagline', () => {
+  // An apostrophe in either value used to be interpolated straight into a
+  // single-quoted TypeScript string, so the generated config did not parse
+  // and the scaffold was broken before the first build.
+  const hostile = {
+    siteName: `Wes's "Docs": a <test> & more \` + \${oops}`,
+    tagline: `Prove you didn't paste the keys \\ and don't \${break}`,
+  };
+
+  it('escapes both into the generated config without breaking the syntax', async () => {
+    const target = await tempTarget();
+    await scaffold({ directory: target, ...hostile, yes: true });
+    const config = await readFile(
+      path.join(target, 'docusaurus.config.ts'),
+      'utf8',
+    );
+
+    // Bound as proper literals, and the raw text never appears unescaped in
+    // a quoted position.
+    expect(config).toContain(
+      `const siteName = ${JSON.stringify(hostile.siteName)};`,
+    );
+    expect(config).toContain(
+      `const tagline = ${JSON.stringify(hostile.tagline)};`,
+    );
+    expect(config).toContain('title: siteName');
+    expect(config).toContain('tagline,');
+    expect(config).not.toContain(`'${hostile.siteName}'`);
+    expect(config).not.toContain(`'${hostile.tagline}'`);
+    // The navbar alt and footer copyright reuse the const inside their
+    // template literals, rather than interpolating the raw text, where a
+    // backtick or a dollar-brace would otherwise inject.
+    expect(config).toMatch(/alt: `\$\{siteName\} logo`/);
+    expect(config).toMatch(/getFullYear\(\)\} \$\{siteName\}`/);
+  });
+
+  it('escapes the site name into doc frontmatter as a quoted YAML scalar', async () => {
+    const target = await tempTarget();
+    await scaffold({ directory: target, ...hostile, yes: true });
+    for (const page of ['docs/intro.md', 'docs/authoring.md']) {
+      const body = await readFile(path.join(target, page), 'utf8');
+      const description = /^description: (.*)$/m.exec(body)?.[1];
+      expect(description).toBeDefined();
+      // A colon in the name would end the YAML value early unless the whole
+      // scalar is quoted, so it must be, and must parse back out.
+      expect(description?.startsWith('"')).toBe(true);
+      expect(description?.endsWith('"')).toBe(true);
+      expect(JSON.parse(description as string)).toContain(hostile.siteName);
+    }
+  });
+
+  it('escapes the site name into the generated logo as an XML attribute', async () => {
+    const target = await tempTarget();
+    await scaffold({ directory: target, ...hostile, yes: true });
+    const svg = await readFile(
+      path.join(target, 'static/img/logo.svg'),
+      'utf8',
+    );
+    // Raw quotes or angle brackets here would close the attribute or the tag.
+    expect(svg).toContain('&quot;');
+    expect(svg).toContain('&lt;test&gt;');
+    expect(svg).toContain('&amp;');
+    expect(svg).not.toContain('aria-label="Wes\'s "Docs"');
+  });
+});
+
+describe('cascade layers', () => {
+  it('emits future.v4 so the preset branding is not overridden by Infima', async () => {
+    // Without this the compiled brand ladder loses the cascade to the
+    // stylesheet bundle and the site silently renders stock Docusaurus blue.
+    const target = await tempTarget();
+    await scaffold({ directory: target, yes: true });
+    const config = await readFile(
+      path.join(target, 'docusaurus.config.ts'),
+      'utf8',
+    );
+    expect(config).toMatch(/future:\s*\{\s*v4:\s*true,?\s*\}/);
   });
 });
 

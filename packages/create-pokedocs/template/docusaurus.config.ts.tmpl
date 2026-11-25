@@ -2,9 +2,14 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type { Config } from '@docusaurus/types';
 import type { PokedocsPresetOptions } from '@pokedocs/preset';
 
+// Bound once so the name is escaped in a single place and safe everywhere it
+// is reused below, including inside the template literal in the footer.
+const siteName = {{SITE_NAME_TS}};
+const tagline = {{TAGLINE_TS}};
+
 const config: Config = {
-  title: '{{SITE_NAME}}',
-  tagline: '{{TAGLINE}}',
+  title: siteName,
+  tagline,
 
   // Overridable per-environment; a production build with a placeholder
   // url warns (POKEDOCS_STRICT_URL=true makes it an error). `||` on
@@ -14,13 +19,21 @@ const config: Config = {
 
   onBrokenLinks: 'throw',
 
+  // Docusaurus wraps its stylesheet in @layer under v4, which is what lets
+  // the preset's branding win the cascade. Removing this makes the compiled
+  // brand colors silently lose to Infima's defaults.
+  future: {
+    v4: true,
+  },
+
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
   },
 
   // The landing page (src/pages/index.tsx) renders these cards — edit the
-  // config, not the component.
+  // config, not the component. Every `to:` must resolve to a real doc route
+  // or the build fails.
   customFields: {
     landing: {
       cards: [
@@ -74,15 +87,15 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: '{{SITE_NAME}}',
+      title: siteName,
       logo: {
-        alt: '{{SITE_NAME}} logo',
+        alt: `${siteName} logo`,
         src: '{{LOGO_PATH}}',
       },
     },
     footer: {
       style: 'dark',
-      copyright: `Copyright © ${new Date().getFullYear()} {{SITE_NAME}}`,
+      copyright: `Copyright © ${new Date().getFullYear()} ${siteName}`,
     },
   } satisfies Preset.ThemeConfig,
 };

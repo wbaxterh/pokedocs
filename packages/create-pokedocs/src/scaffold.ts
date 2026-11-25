@@ -57,8 +57,37 @@ function packageNameFor(directory: string): string {
   return name || 'my-docs';
 }
 
+/**
+ * A site name is free text, so every place it lands needs escaping for that
+ * syntax. Interpolating it raw produced a scaffold that would not compile the
+ * moment a name or tagline contained an apostrophe.
+ */
+
+/** For a TypeScript or JSON string literal, quotes included. */
+function tsLiteral(value: string): string {
+  return JSON.stringify(value);
+}
+
+/**
+ * For embedding inside a double-quoted YAML scalar. YAML's double-quoted
+ * style handles the same escapes as JSON, so reuse them and drop the quotes
+ * the template already supplies.
+ */
+function yamlInner(value: string): string {
+  return JSON.stringify(value).slice(1, -1);
+}
+
+/** For an XML or HTML attribute value delimited by double quotes. */
+function xmlAttr(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function defaultLogoSvg(brandColor: string, siteName: string): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="${siteName} logo">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="${xmlAttr(siteName)} logo">
   <rect width="128" height="128" rx="26" fill="${brandColor}"/>
   <circle cx="64" cy="64" r="34" fill="#ffffff" opacity="0.92"/>
   <circle cx="52" cy="52" r="10" fill="${brandColor}" opacity="0.45"/>
@@ -184,8 +213,17 @@ export async function scaffold(
   }
 
   const vars: Record<string, string> = {
+    // Raw: markdown prose and headings, where free text is fine.
     SITE_NAME: siteName,
     TAGLINE: tagline,
+    // Quoted TypeScript literals: the generated config binds these to consts
+    // so the name is escaped once and reused, including inside template
+    // literals where a stray backtick or `${` would otherwise inject.
+    SITE_NAME_TS: tsLiteral(siteName),
+    TAGLINE_TS: tsLiteral(tagline),
+    // Escaped for the inside of a double-quoted YAML scalar, used by doc
+    // frontmatter where a colon in the name would break the parse.
+    SITE_NAME_YAML: yamlInner(siteName),
     PKG_NAME: packageNameFor(directory),
     BRAND_COLOR: brandColor,
     LOGO_PATH: logoPath,

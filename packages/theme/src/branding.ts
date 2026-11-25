@@ -26,7 +26,11 @@ export interface ShadeLadder {
 }
 
 export interface CompiledBranding {
-  /** Ready-to-inject stylesheet: `:root` + `[data-theme='dark']` blocks. */
+  /**
+   * Ready-to-inject stylesheet: `html:root` + `html[data-theme='dark']`
+   * blocks. The element qualifier is load-bearing, see the note at the
+   * selector itself.
+   */
   css: string;
   /** Computed light-mode ladder. */
   light: ShadeLadder;
@@ -171,7 +175,16 @@ export function compileBranding(
   const favicon = options.favicon ?? logo?.light;
   const colorMode = options.colorMode ?? 'system';
 
-  const lines = [':root {', ...ladderCss(light)];
+  // `html:root` rather than `:root`, and `html[data-theme=…]` below, on
+  // purpose. The preset injects this as an unlayered inline <style> in
+  // <head>, which lands BEFORE the CSS bundle link. Under Docusaurus v4 the
+  // bundle is wrapped in @layer and unlayered CSS wins regardless of order,
+  // so plain `:root` was enough. Without v4 nothing is layered, document
+  // order decides, the later bundle wins, and the compiled brand silently
+  // renders as Infima's default blue. Adding the element qualifier raises
+  // specificity from (0,1,0) to (0,1,1), so branding wins in both cases
+  // instead of depending on a flag in the user's config.
+  const lines = ['html:root {', ...ladderCss(light)];
   lines.push(
     `  --docusaurus-highlighted-code-line-bg: ${rgba(light.primary, 0.08)};`,
   );
@@ -180,7 +193,7 @@ export function compileBranding(
       `  --ifm-font-family-base: '${options.font}', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;`,
     );
   }
-  lines.push('}', '', "[data-theme='dark'] {", ...ladderCss(dark));
+  lines.push('}', '', "html[data-theme='dark'] {", ...ladderCss(dark));
   lines.push(
     `  --docusaurus-highlighted-code-line-bg: ${rgba(dark.primary, 0.15)};`,
   );

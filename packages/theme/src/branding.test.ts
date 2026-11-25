@@ -51,8 +51,8 @@ describe('S1.4.1 — brandColor to full theme', () => {
 
   it('emits both color-mode blocks with all seven shades', () => {
     const { css } = compileBranding({ brandColor: '#d8232a' });
-    expect(css).toContain(':root {');
-    expect(css).toContain("[data-theme='dark'] {");
+    expect(css).toContain('html:root {');
+    expect(css).toContain("html[data-theme='dark'] {");
     const varNames = [
       '--ifm-color-primary:',
       '--ifm-color-primary-dark:',
@@ -65,6 +65,20 @@ describe('S1.4.1 — brandColor to full theme', () => {
     for (const name of varNames) {
       expect(css.split(name)).toHaveLength(3); // once per color mode
     }
+  });
+
+  it('qualifies both selectors with the element so branding outranks the Infima bundle', () => {
+    // The preset injects this as an unlayered inline <style> that lands
+    // before the stylesheet link. Under future.v4 the bundle is layered and
+    // unlayered wins on that basis alone, but a site without v4 has nothing
+    // layered, so document order decides and the later bundle takes `:root`.
+    // The element qualifier lifts specificity to (0,1,1) and wins either way.
+    // A bare `:root {` or `[data-theme=…] {` block is the regression.
+    const { css } = compileBranding({ brandColor: '#d8232a' });
+    expect(css).not.toMatch(/^:root \{/m);
+    expect(css).not.toMatch(/^\[data-theme='dark'\] \{/m);
+    expect(css).toMatch(/^html:root \{/m);
+    expect(css).toMatch(/^html\[data-theme='dark'\] \{/m);
   });
 
   it('normalizes a string logo to light/dark variants and defaults the favicon to it', () => {
