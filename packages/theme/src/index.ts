@@ -7,7 +7,11 @@
  */
 
 import path from 'node:path';
-import type { Plugin, SwizzleConfig } from '@docusaurus/types';
+import type { LoadContext, Plugin, SwizzleConfig } from '@docusaurus/types';
+import {
+  compileMermaidPalette,
+  type MermaidPaletteOptions,
+} from './mermaid-palette.js';
 
 /**
  * Directory of reader-facing theme components (`@theme/PokedocsMermaid`, the
@@ -15,16 +19,46 @@ import type { Plugin, SwizzleConfig } from '@docusaurus/types';
  */
 export const THEME_COMPONENTS_PATH = path.join(__dirname, 'client', 'theme');
 
+/** The stylesheet that recolors baked diagrams per color mode (S5.1.2). */
+export const MERMAID_PALETTE_CSS = path.join(
+  __dirname,
+  '..',
+  'css',
+  'mermaid-palette.css',
+);
+
+export interface ThemeComponentsOptions {
+  /**
+   * Diagram colors (S5.1.2). By default diagrams are recolored from the
+   * site's brand in both color modes; give `light` / `dark` colors to
+   * override individual ones, or `false` to keep the palette mermaid baked
+   * into the SVG at build time.
+   */
+  palette?: MermaidPaletteOptions | false;
+}
+
 /**
- * The Docusaurus theme that turns every build-time mermaid diagram into a
- * zoom/pan/full-screen viewer (S5.1.1). The preset registers it by default;
+ * The Docusaurus theme behind PokeDocs diagrams: a zoom/pan/full-screen
+ * viewer on every build-time mermaid diagram (S5.1.1) and a brand-derived
+ * palette per color mode (S5.1.2). The preset registers it by default;
  * register it yourself only when using the packages without the preset, and
  * list it after the classic theme so it can wrap `@theme/MDXComponents`.
  */
-export function pokedocsThemeComponents(): Plugin {
+export function pokedocsThemeComponents(
+  _context?: LoadContext,
+  options: ThemeComponentsOptions = {},
+): Plugin {
+  const { palette } = options;
+  // Compiled here so a bad palette fails at build start, not in the browser.
+  const overrides = palette ? compileMermaidPalette(palette) : '';
   return {
     name: 'pokedocs-theme-components',
     getThemePath: () => THEME_COMPONENTS_PATH,
+    getClientModules: () => (palette === false ? [] : [MERMAID_PALETTE_CSS]),
+    injectHtmlTags: () =>
+      overrides
+        ? { headTags: [{ tagName: 'style', innerHTML: overrides }] }
+        : {},
   };
 }
 
@@ -71,3 +105,11 @@ export {
   type ShadeLadder,
 } from './branding.js';
 export { contrastRatio, lightnessOf } from './color.js';
+export {
+  compileMermaidPalette,
+  MERMAID_PALETTE_KEYS,
+  type MermaidPalette,
+  type MermaidPaletteKey,
+  type MermaidPaletteOptions,
+  mermaidPaletteVariable,
+} from './mermaid-palette.js';

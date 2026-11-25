@@ -42,10 +42,9 @@ Docusaurus distribution; docs at https://wbaxterh.github.io/pokedocs/).
    brandColor: { light, dark }.
 3. custom.css: delete the --ifm-color-primary* ladder blocks — the preset
    compiles both modes, deriving dark LIGHTER and contrast-checked. Keep all
-   other styling. If the site uses dark mode, add:
-   .pokedocs-mermaid svg { max-width: 100%; height: auto; }
-   [data-theme="dark"] .pokedocs-mermaid { background: #fffdf8;
-     border-radius: 8px; padding: .75rem; }
+   other styling. Add nothing for diagrams: they are recolored from the brand
+   in light and dark mode automatically. If custom.css already puts a light
+   background behind .pokedocs-mermaid for dark mode, delete that rule.
 4. Gotchas: {#custom-id} heading anchors fail to parse under future.v4 — remove
    them and point inbound links at the auto-generated slugs. Mermaid renders at
    build time via chromium: run `npx playwright install chromium` once locally,
