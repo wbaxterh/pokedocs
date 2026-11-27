@@ -1,5 +1,13 @@
 # docs-site
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`cbeb4fe`](https://github.com/wbaxterh/pokedocs/commit/cbeb4fef81790f633935ca8d621acbd1699b22e2), [`141b9ef`](https://github.com/wbaxterh/pokedocs/commit/141b9ef29a4af106f132019042a7324b570a4294), [`cb5b9a6`](https://github.com/wbaxterh/pokedocs/commit/cb5b9a6a8112efb17c574cf66b42c3852a9477b9), [`6462338`](https://github.com/wbaxterh/pokedocs/commit/6462338d940e212090297a1bd215f33792343935)]:
+  - @pokedocs/preset@0.4.0
+  - @pokedocs/theme@0.3.0
+
 ## 0.0.3
 
 ### Patch Changes
