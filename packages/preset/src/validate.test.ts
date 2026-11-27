@@ -63,6 +63,33 @@ describe('S1.2.2 — config validation with human errors', () => {
     );
   });
 
+  it('names the bad key when a mermaid palette is wrong (S5.1.2)', () => {
+    const unknownKey = failure({
+      mermaid: { palette: { dark: { nodeColor: '#fff' } } },
+    });
+    expect(unknownKey).toContain('invalid option `mermaid.palette`');
+    expect(unknownKey).toContain('unknown mermaid palette key "nodeColor"');
+    expect(unknownKey).toContain('nodeFill');
+
+    expect(failure({ mermaid: { palette: 'dark' } })).toContain(
+      'expected { light?, dark? } or false',
+    );
+    expect(
+      failure({ mermaid: { palette: { dark: { text: '#fff; color: red' } } } }),
+    ).toContain('must be a CSS color');
+  });
+
+  it('accepts a valid mermaid palette, and palette: false (S5.1.2)', () => {
+    expect(() =>
+      validatePresetOptions({
+        mermaid: { palette: { light: { line: '#444950' }, dark: {} } },
+      }),
+    ).not.toThrow();
+    expect(() =>
+      validatePresetOptions({ mermaid: { palette: false } }),
+    ).not.toThrow();
+  });
+
   it('rejects mermaid: true — the option is object-or-false', () => {
     const message = failure({ mermaid: true });
     expect(message).toContain('invalid option `mermaid`');

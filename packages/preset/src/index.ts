@@ -22,7 +22,7 @@ import pluginFrontmatterSchema, {
 } from '@pokedocs/plugin-frontmatter-schema';
 import type { MermaidSsrOptions } from '@pokedocs/plugin-mermaid-ssr';
 import { rehypeMermaidSsr } from '@pokedocs/plugin-mermaid-ssr';
-import type { BrandingOptions } from '@pokedocs/theme';
+import type { BrandingOptions, MermaidPaletteOptions } from '@pokedocs/theme';
 import { compileBranding, pokedocsThemeComponents } from '@pokedocs/theme';
 import { checkSiteUrl } from './url-guard.js';
 import { validatePresetOptions } from './validate.js';
@@ -36,8 +36,11 @@ export type DocsOptions = Exclude<ClassicOptions['docs'], false | undefined>;
 export interface PokedocsPresetOptions {
   /** Brand configuration compiled into the full theme (F1.4). */
   branding?: BrandingOptions;
-  /** Build-time mermaid rendering (F1.3). Set false to disable. */
-  mermaid?: MermaidSsrOptions | false;
+  /**
+   * Build-time mermaid rendering (F1.3) plus the diagram viewer and
+   * palette (F5.1). Set false to disable all of it.
+   */
+  mermaid?: MermaidOptions | false;
   /** Agent-readable artifacts: llms.txt, .md twins, discovery links (F1.5). Set false to disable. */
   agentEndpoints?: AgentEndpointsOptions | false;
   /** Frontmatter schema validation (F2.2). Set false to disable. */
@@ -52,6 +55,17 @@ export interface PokedocsPresetOptions {
   docs?: DocsOptions;
   /** Classic theme options — set customCss for site-specific styling beyond branding. */
   theme?: { customCss?: string | string[] };
+}
+
+export interface MermaidOptions extends MermaidSsrOptions {
+  /**
+   * Diagram colors per color mode (S5.1.2). By default diagrams are
+   * recolored from the brand in light and dark. Give `light` / `dark`
+   * colors to override individual ones, or `false` to keep the palette
+   * mermaid bakes into the SVG. Setting `themeVariables` or `mermaidConfig`
+   * implies `false` — you chose the baked colors — unless `palette` is set.
+   */
+  palette?: MermaidPaletteOptions | false;
 }
 
 /** Search engine choices decided by ADR-0002 (S1.6.2). */
@@ -81,13 +95,20 @@ export default function pokedocsPreset(
     ? compileBranding(options.branding)
     : undefined;
 
+  // `palette` belongs to the theme; everything else is the SSR plugin's.
+  const { palette, ...mermaidSsr } =
+    options.mermaid === false ? {} : (options.mermaid ?? {});
+  const bakesOwnColors =
+    mermaidSsr.themeVariables !== undefined ||
+    mermaidSsr.mermaidConfig !== undefined;
+
   const docsOptions: DocsOptions = {
     routeBasePath: '/',
     ...options.docs,
     beforeDefaultRehypePlugins: [
       ...(options.mermaid === false
         ? []
-        : [[rehypeMermaidSsr, options.mermaid ?? {}] as const]),
+        : [[rehypeMermaidSsr, mermaidSsr] as const]),
       ...(options.docs?.beforeDefaultRehypePlugins ?? []),
     ],
   };
@@ -103,7 +124,12 @@ export default function pokedocsPreset(
   if (options.mermaid !== false) {
     // S5.1.1: zoom/pan/full-screen on every diagram, no per-site code. After
     // the classic theme so its MDXComponents is the one being wrapped.
-    themes.push(pokedocsThemeComponents);
+    // S5.1.2: brand-derived colors per color mode, unless the site baked
+    // its own through mermaid's theme options.
+    themes.push([
+      pokedocsThemeComponents as PluginModule,
+      { palette: palette ?? (bakesOwnColors ? false : undefined) },
+    ]);
   }
   if (options.search !== false) {
     // Resolved from this package, not the site, so users never install
